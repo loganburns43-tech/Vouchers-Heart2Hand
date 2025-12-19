@@ -49,6 +49,17 @@
       background:linear-gradient(180deg,rgba(24,22,33,0.96),rgba(24,22,33,0));
     }
     .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .switch-link{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 14px;border-radius:12px;
+      border:1px solid rgba(156,207,216,.7);
+      background:linear-gradient(135deg,rgba(49,116,143,.18),rgba(156,207,216,.2));
+      color:var(--text);font-weight:800;letter-spacing:.25px;
+      text-decoration:none;box-shadow:0 8px 18px rgba(0,0,0,.32);
+      transition:transform .08s ease,filter .12s ease,box-shadow .12s ease;
+    }
+    .switch-link:hover{filter:brightness(1.05);box-shadow:0 10px 22px rgba(0,0,0,.38);}
+    .switch-link:active{transform:translateY(1px);}
     .history-cta{
       flex:0 0 auto;min-width:140px;padding:12px 16px;border-radius:14px;
       border:1px solid rgba(148,163,184,.4);
@@ -578,6 +589,7 @@ body.sig-drawing {
       <div class="top-row">
         <h1>＋ Client Entry</h1>
         <div class="top-actions">
+          <a class="switch-link" href="?app=heart" target="_top" rel="noopener">Switch to Heart to Hand</a>
           <button class="history-cta" id="historyBtn" type="button" onclick="openHistory()">History</button>
           <button class="profile-cta" id="editProfileBtn" type="button" onclick="openProfileEditor()">Edit Profile</button>
           <button class="client-cta" id="clientBtn" type="button" onclick="openClientList()">Clients</button>

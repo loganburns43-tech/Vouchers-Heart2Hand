@@ -68,8 +68,8 @@ function onInstall() {
   onOpen();
 }
 
-// ---------- Web App ----------
-function doGet() {
+// ---------- Web App (render only; routed via UnifiedSync.doGet) ----------
+function renderHeartToHand() {
   setupHeartToHand_();
   return HtmlService.createHtmlOutputFromFile('HeartToHand')
     .setTitle('Heart to Hand')
