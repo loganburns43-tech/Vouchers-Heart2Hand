@@ -68,10 +68,12 @@ function onInstall() {
   onOpen();
 }
 
-// ---------- Web App ----------
-function doGet() {
+// ---------- Web App (render only; routed via UnifiedSync.doGet) ----------
+function renderHeartToHand() {
   setupHeartToHand_();
-  return HtmlService.createHtmlOutputFromFile('HeartToHand')
+  const t = HtmlService.createTemplateFromFile('HeartToHand');
+  t.baseUrl = ScriptApp.getService().getUrl();
+  return t.evaluate()
     .setTitle('Heart to Hand')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
