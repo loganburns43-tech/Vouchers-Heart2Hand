@@ -328,6 +328,42 @@
       margin-bottom: 4px;
     }
 
+    .switcher-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 240px;
+    }
+
+    .switcher-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .switcher-actions button {
+      width: auto;
+      min-height: 40px;
+      padding-inline: 12px;
+    }
+
+    .switch-status {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      min-height: 18px;
+    }
+
+    .switch-status.ok {
+      color: var(--ok);
+    }
+
+    .switch-status.err {
+      color: #f38ba8;
+    }
+
     #signatureCanvas {
       border-radius: 12px;
       background: #ffffff;
@@ -678,8 +714,16 @@
         </h1>
         <p class="muted">Track items gifted for free and the value behind each visit.</p>
       </div>
-      <div aria-live="polite" aria-atomic="true" style="min-width: 220px;">
-        <span id="connectionChip" class="chip connection-chip offline">Checking connection...</span>
+      <div class="switcher-wrap" aria-live="polite" aria-atomic="true">
+        <div class="switcher-actions">
+          <button id="switchToVouchersBtn" type="button" class="btn-clear">Switch to Vouchers</button>
+          <button id="preloadBtn" type="button" class="btn-secondary">Preload both apps for offline</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end;">
+          <span id="preloadIndicator" class="chip connection-chip" style="display:none;">Preloaded</span>
+          <span id="connectionChip" class="chip connection-chip offline">Checking connection...</span>
+        </div>
+        <div id="switchStatus" class="switch-status"></div>
       </div>
     </header>
 
@@ -854,12 +898,99 @@
   <script>
     const gid = (id) => document.getElementById(id);
     const OFFLINE_QUEUE_KEY = 'hh_offline_queue';
+    const PRELOAD_KEY = 'hh_offline_preloaded';
+    const APP_LINKS = {
+      heartToHand: 'https://script.google.com/macros/s/AKfycbzrHlvPRLXEaGHOgHpzpHCWBCw35gtgD-rwYMZrgkoC2AZ-7qrSzmDC_coBcy1yC-QBKQ/exec',
+      vouchers: 'https://script.google.com/macros/s/AKfycbygpSPweMoLYetb4UgHeuvi5JCbacVT6S0Yr2il2JDV08bj1NQ6kEpLx96F4fVTJF7a8A/exec',
+      windowName: 'heart2hand_vouchers_app'
+    };
     let historyEntries = [];
     let allClients = [];
     let signatureCanvas, signatureCtx, isDrawing = false;
     let signatureDataUrl = '';
     let hasSignature = false;
     let customItems = [];
+
+    function setSwitchStatus(message, state = '') {
+      const el = gid('switchStatus');
+      if (!el) return;
+      el.textContent = message || '';
+      el.classList.remove('ok', 'err');
+      if (state === 'ok') el.classList.add('ok');
+      if (state === 'err') el.classList.add('err');
+    }
+
+    function loadPreloadState() {
+      try {
+        const raw = localStorage.getItem(PRELOAD_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function showPreloadIndicator() {
+      const indicator = gid('preloadIndicator');
+      const state = loadPreloadState();
+      if (!indicator) return;
+      if (state && state.at) {
+        const ts = new Date(state.at);
+        const time = ts.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        indicator.style.display = 'inline-flex';
+        indicator.textContent = `Preloaded • ${time}`;
+      } else {
+        indicator.style.display = 'none';
+      }
+    }
+
+    function openNamedWindow(url) {
+      const win = window.open(url, APP_LINKS.windowName);
+      if (!win) {
+        setSwitchStatus(
+          `Popup blocked. Allow popups for this site or manually open: ${url}`,
+          'err'
+        );
+        return null;
+      }
+      return win;
+    }
+
+    function switchToVouchers() {
+      const win = openNamedWindow(APP_LINKS.vouchers);
+      if (!win) return;
+      try { win.focus(); } catch (e) {}
+      if (!navigator.onLine) {
+        setSwitchStatus(
+          'Offline — switching will only work if the other app tab is already open.',
+          'err'
+        );
+      } else {
+        setSwitchStatus('Switching to Vouchers…', 'ok');
+      }
+    }
+
+    function markPreloaded() {
+      try {
+        localStorage.setItem(PRELOAD_KEY, JSON.stringify({ at: new Date().toISOString() }));
+      } catch (e) {}
+      showPreloadIndicator();
+    }
+
+    function preloadApps() {
+      const win = openNamedWindow(APP_LINKS.vouchers);
+      if (!win) return;
+      markPreloaded();
+      setSwitchStatus('Preloaded Vouchers tab. Keep both tabs open for offline use.', 'ok');
+      setTimeout(() => {
+        try { window.focus(); } catch (e) {}
+      }, 200);
+    }
+
+    function handleOfflineNotice() {
+      if (!navigator.onLine) {
+        setSwitchStatus('Offline — switching will only work if the other app tab is already open.');
+      }
+    }
 
     // Menu items
     const ITEM_CATEGORIES = [
@@ -1536,6 +1667,8 @@ function resetItemsMenu() {
       gid('loadHistoryBtn').addEventListener('click', loadHistory);
       gid('clearFormBtn').addEventListener('click', clearForm);
       gid('clearHistoryBtn').addEventListener('click', clearHistorySection);
+      gid('switchToVouchersBtn').addEventListener('click', switchToVouchers);
+      gid('preloadBtn').addEventListener('click', preloadApps);
 
       gid('openClientPickerBtn').addEventListener('click', openClientModal);
       gid('closeClientModalBtn').addEventListener('click', closeClientModal);
@@ -1571,6 +1704,8 @@ function resetItemsMenu() {
       attachEvents();
       updateConnectionChip(canReachScript());
       setStatus('Ready.', true);
+      showPreloadIndicator();
+      handleOfflineNotice();
 
       if (canReachScript()) {
         google.script.run
@@ -1587,6 +1722,7 @@ function resetItemsMenu() {
 
       window.addEventListener('online', () => {
         updateConnectionChip(canReachScript());
+        setSwitchStatus('Online — you can switch tabs normally.', 'ok');
         if (canReachScript()) {
           google.script.run
             .withSuccessHandler(populateClients)
@@ -1599,6 +1735,7 @@ function resetItemsMenu() {
       window.addEventListener('offline', () => {
         updateConnectionChip(false);
         setStatus('Offline: entries will be stored locally until you are back online.', false);
+        handleOfflineNotice();
       });
     }
 
