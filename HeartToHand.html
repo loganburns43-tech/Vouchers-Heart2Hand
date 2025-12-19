@@ -328,6 +328,39 @@
       margin-bottom: 4px;
     }
 
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .switch-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(156, 207, 216, 0.7);
+      background: linear-gradient(135deg, rgba(49, 116, 143, 0.16), rgba(156, 207, 216, 0.18));
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+      transition: transform 120ms ease, filter 150ms ease, box-shadow 150ms ease;
+    }
+
+    .switch-link:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
+    }
+
+    .switch-link:active {
+      transform: translateY(1px);
+    }
+
     #signatureCanvas {
       border-radius: 12px;
       background: #ffffff;
@@ -678,8 +711,11 @@
         </h1>
         <p class="muted">Track items gifted for free and the value behind each visit.</p>
       </div>
-      <div aria-live="polite" aria-atomic="true" style="min-width: 220px;">
-        <span id="connectionChip" class="chip connection-chip offline">Checking connection...</span>
+      <div class="header-actions">
+        <a class="switch-link" href="?app=vouchers" target="_top" rel="noopener">Switch to Voucher Lookup</a>
+        <div aria-live="polite" aria-atomic="true" style="min-width: 220px;">
+          <span id="connectionChip" class="chip connection-chip offline">Checking connection...</span>
+        </div>
       </div>
     </header>
 
