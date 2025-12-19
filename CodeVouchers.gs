@@ -38,8 +38,8 @@ const VOUCHER_HEADERS = [
   'Date','Added ($)','Used ($)','Running Balance ($)','Clerk'
 ];
 
-/***** WEB APP ENTRY *****/
-function doGet() {
+/***** WEB APP ENTRY (render only; routed via UnifiedSync.doGet) *****/
+function renderVoucherLookup() {
   return HtmlService.createHtmlOutputFromFile('lookup')
     .setTitle('Client Balance Lookup');
 }
