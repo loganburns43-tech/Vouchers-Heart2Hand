@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Heart to Hand</title>
+
+  <style>
+    :root {
+      --bg: #191724;
+      --card: #1f1d2e;
+      --surface: #26233a;
+      --border: #403d52;
+      --text: #e0def4;
+      --muted: #6e6a86;
+      --accent: #eb6f92;
+      --secondary: #31748f;
+      --ok: #9ccfd8;
+      --cta: #f6c177;
+      --shadow: 0 14px 40px rgba(15, 10, 32, 0.8);
+      --r: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #26233a 0, #191724 45%, #0b0814 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      font-size: 16px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, rgba(39, 33, 58, 0.96), rgba(26, 21, 44, 0.98));
+      border: 1px solid rgba(96, 92, 128, 0.6);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      max-width: 960px;
+      width: 100%;
+      padding: 24px;
+      margin: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(235, 108, 146, 0.16) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(148, 226, 213, 0.12) 0, transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Title */
+    h1 {
+      margin: 0 0 4px;
+      font-size: 32px;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(0, 0, 0, 0.55);
+    }
+
+    h1 span.badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(246, 193, 119, 0.9);
+      color: var(--cta);
+      background: rgba(40, 35, 64, 0.95);
+      letter-spacing: 0.08em;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 19px;
+    }
+
+    .muted {
+      color: var(--muted);
+      margin-top: 0;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-top: 24px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(31, 29, 46, 0.98), rgba(32, 29, 57, 0.98));
+      border-radius: var(--r);
+      border: 1px solid rgba(75, 71, 110, 0.8);
+    }
+
+    .section h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section h2::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(235, 111, 146, 0.18);
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(85, 81, 122, 0.9);
+      background: rgba(18, 16, 29, 0.9);
+      color: var(--text);
+      font-size: 16px;
+      min-height: 48px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(110, 106, 134, 0.85);
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(235, 111, 146, 0.3);
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      min-height: 52px;
+      transition:
+        transform 120ms ease,
+        box-shadow 120ms ease,
+        background 120ms ease,
+        opacity 120ms ease;
+      box-shadow: 0 7px 16px rgba(3, 4, 26, 0.7);
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(5, 8, 34, 0.85);
+    }
+
+    button:not(:disabled):active {
+      transform: translateY(0);
+      box-shadow: 0 6px 12px rgba(5, 8, 34, 0.7);
+      filter: brightness(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #f6c177);
+      color: #191724;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--secondary), #9ccfd8);
+      color: #05040b;
+    }
+
+    .btn-clear {
+      background: transparent;
+      border: 1px solid rgba(96, 92, 128, 0.9);
+      color: var(--muted);
+    }
+
+    .btn-clear:not(:disabled):hover {
+      background: rgba(58, 54, 95, 0.7);
+      color: var(--text);
+    }
+
+    .btn-clear:not(:disabled):active {
+      background: rgba(43, 39, 72, 0.9);
+    }
+
+    .status {
+      margin-top: 12px;
+      padding: 9px 11px;
+      border-radius: 12px;
+      border: 1px solid rgba(96, 92, 128, 0.9);
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(18, 16, 29, 0.9);
+    }
+
+    .status.ok {
+      color: var(--ok);
+      border-color: var(--ok);
+      box-shadow: 0 0 0 1px rgba(156, 207, 216, 0.4);
+    }
+
+    .status.err {
+      color: #f38ba8;
+      border-color: #f38ba8;
+      box-shadow: 0 0 0 1px rgba(243, 139, 168, 0.4);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(76, 187, 116, 0.7);
+      color: #bbf7d0;
+      background: rgba(22, 101, 52, 0.25);
+    }
+
+    .chip.dot::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #4ade80;
+    }
+
+    .connection-chip {
+      border-color: rgba(85, 81, 122, 0.9);
+      background: rgba(18, 16, 29, 0.8);
+      color: var(--muted);
+      font-weight: 600;
+      padding: 6px 12px;
+      min-height: 32px;
+    }
+
+    .connection-chip.online {
+      border-color: rgba(76, 187, 116, 0.7);
+      color: #bbf7d0;
+      background: rgba(22, 101, 52, 0.15);
+    }
+
+    .connection-chip.offline {
+      border-color: rgba(49, 116, 143, 0.75);
+      color: #9ccfd8;
+      background: rgba(49, 116, 143, 0.14);
+    }
+
+    .history-item {
+      border: 1px solid rgba(75, 71, 110, 0.9);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: radial-gradient(circle at top left, rgba(235, 188, 186, 0.09), transparent 55%),
+                  rgba(18, 16, 29, 0.9);
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .items-text {
+      white-space: pre-wrap;
+      margin-top: 8px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    #signatureCanvas {
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid rgba(96, 92, 128, 0.9);
+      width: 100%;
+      touch-action: none;
+    }
+
+    /* Remove arrows from number inputs */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 8, 20, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid rgba(96, 92, 128, 0.9);
+      box-shadow: 0 20px 60px rgba(5, 3, 20, 0.95);
+      max-width: 540px;
+      width: 92%;
+      padding: 18px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .modal-body {
+      max-height: 60vh;
+      overflow: auto;
+    }
+
+    .modal-footer {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-close {
+      width: auto;
+      padding-inline: 10px;
+      min-height: 32px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .client-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .client-list button {
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      background: rgba(24, 21, 42, 0.9);
+      border: 1px solid rgba(75, 71, 110, 0.9);
+      border-radius: 10px;
+      font-size: 13px;
+      text-transform: none;
+      box-shadow: none;
+    }
+
+    .client-list button:hover {
+      background: rgba(58, 54, 95, 0.9);
+    }
+
+    #signatureStatus {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .warning {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 4px 0 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(246, 193, 119, 0.06);
+      border-left: 3px solid rgba(246, 193, 119, 0.7);
+      color: var(--cta);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .warning::before {
+      content: "!";
+      font-weight: 700;
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .items-block {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: var(--r);
+      background: linear-gradient(
+        135deg,
+        rgba(24, 21, 42, 0.98),
+        rgba(30, 27, 52, 0.98)
+      );
+      border: 1px solid rgba(235, 111, 146, 0.35);
+      box-shadow: 0 0 0 1px rgba(235, 111, 146, 0.12);
+    }
+
+    .items-block label {
+      color: var(--text);
+    }
+
+    .items-block textarea {
+      background: rgba(15, 13, 30, 0.96);
+      border-radius: 10px;
+      border: 1px solid rgba(85, 81, 122, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+      min-height: 110px;
+      margin-top: 6px;
+    }
+
+    .items-block textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow:
+        0 0 0 1px rgba(235, 111, 146, 0.4),
+        0 0 12px rgba(235, 111, 146, 0.3);
+    }
+
+    .items-menu {
+      margin-top: 6px;
+      margin-bottom: 6px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .items-menu-qty {
+      width: 100%;
+      padding: 10px 8px;
+      border-radius: 10px;
+      font-size: 15px;
+      text-align: center;
+      border: 1px solid rgba(85, 81, 122, 0.9);
+      background: rgba(10, 8, 24, 0.95);
+      min-height: 44px;
+    }
+
+    .items-menu-qty:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(235, 111, 146, 0.4);
+    }
+
+    /* === POP-OUT ITEM CATEGORIES === */
+  
+.items-category-header {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.items-category-header:hover {
+  background: rgba(58, 54, 95, 0.7);
+  color: var(--text);
+}
+
+.items-category {
+  position: relative;
+  overflow: visible;
+
+  border: 1px solid rgba(75, 71, 110, 0.9);
+  border-radius: 12px;
+  background: rgba(18, 16, 29, 0.95);
+}
+
+.items-category-body {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  z-index: 50;
+
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(18, 16, 29, 0.98);
+  border: 1px solid rgba(235, 111, 146, 0.35);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.65);
+
+  max-height: 280px;
+  overflow: auto;
+}
+
+.items-category.open .items-category-body {
+  display: block;
+}
+
+.items-item {
+  display: grid;
+  grid-template-columns: auto 1fr 70px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+    .custom-items-row {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.6fr) minmax(0, 0.8fr);
+      gap: 12px;
+      align-items: end;
+    }
+
+    .custom-items-row small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    /* High-contrast history section */
+
+    #historySection h2 {
+      color: #f9fafb;
+      font-size: 20px;
+    }
+
+    #historySection label {
+      color: #e5e7eb;
+      font-size: 14px;
+    }
+
+    #historySection input,
+    #historySection button,
+    #historySection select {
+      background: #020617;
+      border-color: #e5e7eb;
+      font-size: 14px;
+    }
+
+    #historySection .btn-secondary {
+      background: #f97316;
+      color: #111827;
+      border-color: #f97316;
+      box-shadow: none;
+    }
+
+    #historySection .btn-clear {
+      border-color: #e5e7eb;
+      color: #e5e7eb;
+    }
+
+    /* History modal high contrast */
+    #historyModal .modal {
+      background: #020617;
+      border: 2px solid #f97316;
+    }
+
+    #historyModal .modal-header h3 {
+      color: #f9fafb;
+      font-size: 18px;
+    }
+
+    #historyModal h3 {
+      color: #f9fafb;
+      font-size: 16px;
+    }
+
+    #historyModal .history-item {
+      background: #0b1120;
+      border: 1px solid #e5e7eb;
+    }
+
+    #historyModal .history-head {
+      color: #f9fafb;
+      font-size: 15px;
+    }
+
+    #historyModal .items-text {
+      color: #f9fafb;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    #historyModal .muted {
+      color: #e5e7eb;
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .card { padding: 16px; }
+      .modal { max-width: 95%; }
+      .custom-items-row {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(3, auto);
+      }
+    }
+    /* TEMP: hide history area + button(s) completely */
+#historySection {
+  display: none !important;
+}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header class="header-top">
+      <div>
+        <h1>
+          Heart to Hand
+          <span class="badge">Log</span>
+        </h1>
+        <p class="muted">Track items gifted for free and the value behind each visit.</p>
+      </div>
+      <div aria-live="polite" aria-atomic="true" style="min-width: 220px;">
+        <span id="connectionChip" class="chip connection-chip offline">Checking connection...</span>
+      </div>
+    </header>
+
+    <!-- History Section -->
+    <section class="section" id="historySection">
+      <h2>Client History</h2>
+      <div class="row">
+        <div>
+          <label for="lastNameHistory">Last Name</label>
+          <input type="text" id="lastNameHistory" placeholder="Doe">
+        </div>
+        <div>
+          <label for="firstNameHistory">First Name</label>
+          <input type="text" id="firstNameHistory" placeholder="Jane">
+        </div>
+        <div>
+          <label>Browse Clients</label>
+          <button type="button" class="btn-clear" id="openClientPickerBtn">Open client list</button>
+        </div>
+      </div>
+      <div class="actions" style="margin-top:12px;">
+        <button class="btn-secondary" id="loadHistoryBtn">Load History</button>
+        <button class="btn-clear" id="clearHistoryBtn">Clear</button>
+      </div>
+    </section>
+
+    <!-- New Entry Section -->
+    <section class="section" id="entrySection">
+      <h2>New Entry</h2>
+      <div class="row">
+        <div>
+          <label for="date">Date (for your reference)</label>
+          <input type="date" id="date">
+        </div>
+        <div>
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" placeholder="Doe">
+        </div>
+        <div>
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" placeholder="Jane">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <label for="clerkInitials">Clerk Initials</label>
+          <input type="text" id="clerkInitials" placeholder="AB">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" placeholder="207-555-1234">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <label for="adults">Adults</label>
+          <input type="number" id="adults" min="0" step="1" placeholder="0">
+        </div>
+        <div>
+          <label for="children">Children</label>
+          <input type="number" id="children" min="0" step="1" placeholder="0">
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>Signature</label>
+        <div class="actions" style="margin-top:4px;">
+          <button type="button" class="btn-secondary" id="openSignatureBtn">
+            Open signature pad
+          </button>
+        </div>
+        <div id="signatureStatus">
+          <span class="chip" id="signatureStatusChip" style="display:none;">
+            <span class="dot"></span>
+            Signature captured
+          </span>
+          <span id="signatureStatusText" class="muted">No signature captured yet.</span>
+        </div>
+      </div>
+
+      <div class="items-block">
+        <label for="items">Items</label>
+        <p class="warning">
+          Items listed are for emergency purposes only. Only items listed are to be given.
+        </p>
+
+        <!-- Menu for clerks -->
+        <div id="itemsMenu" class="items-menu" aria-label="Select items and quantities"></div>
+
+        <!-- Custom item row -->
+        <div class="custom-items-row">
+          <div>
+            <label for="customItemName">Custom item</label>
+            <input type="text" id="customItemName" placeholder="e.g. Tent, Cooler, Trash bags">
+          </div>
+          <div>
+            <label for="customItemQty">Qty</label>
+            <input type="number" id="customItemQty" min="1" step="1" placeholder="1 (defaults to 1)">
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button type="button" id="addCustomItemBtn" class="btn-secondary">Add item</button>
+          </div>
+        </div>
+
+        <textarea id="items" placeholder="Selected items summary will appear here..." required></textarea>
+        <p class="muted" style="margin-top:4px; font-size:11px;">
+          Adjust the text above if you need to add notes or special items.
+        </p>
+      </div>
+
+      <div class="actions" style="margin-top:16px;">
+        <button class="btn-primary" id="saveBtn">Save Heart to Hand</button>
+        <button class="btn-clear" id="clearFormBtn">Clear Form</button>
+      </div>
+
+      <div id="status" class="status" aria-live="polite">Ready.</div>
+    </section>
+  </div>
+
+  <!-- Client Picker Modal -->
+  <div class="modal-backdrop" id="clientModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Select Client</h3>
+        <button type="button" class="btn-clear modal-close" id="closeClientModalBtn">Close</button>
+      </div>
+      <div class="modal-body">
+        <ul class="client-list" id="clientList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="modal-backdrop" id="historyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="historyTitle">Client History</h3>
+        <button type="button" class="btn-clear modal-close" id="closeHistoryModalBtn">Close</button>
+      </div>
+      <div class="modal-body">
+        <div id="historyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signature Modal -->
+  <div class="modal-backdrop" id="signatureModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Sign here</h3>
+        <button type="button" class="btn-clear modal-close" id="closeSignatureModalBtn">Cancel</button>
+      </div>
+      <div class="modal-body">
+        <p class="muted" style="margin-top:0; margin-bottom:8px;">
+          Please sign inside the box using your finger or a stylus.
+        </p>
+        <canvas id="signatureCanvas" width="320" height="120"></canvas>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-clear" id="clearSignatureBtn">Clear</button>
+        <button type="button" class="btn-primary" id="confirmSignatureBtn">Confirm Signature</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const gid = (id) => document.getElementById(id);
+    const OFFLINE_QUEUE_KEY = 'hh_offline_queue';
+    let historyEntries = [];
+    let allClients = [];
+    let signatureCanvas, signatureCtx, isDrawing = false;
+    let signatureDataUrl = '';
+    let hasSignature = false;
+    let customItems = [];
+
+    // Menu items
+    const ITEM_CATEGORIES = [
+      {
+        id: 'toiletries',
+        label: 'Toiletries',
+        items: [
+          { id: 'comfortAdult', label: 'Comfort Pack - Adult' },
+          { id: 'comfortChild', label: 'Comfort Pack - Child' },
+          { id: 'feminine', label: 'Feminine Hygiene' },
+          { id: 'adultUndergarments', label: 'Adult Undergarments' },
+          { id: 'adultDiapers', label: 'Adult Diapers' },
+          { id: 'childrenDiapers', label: 'Children Diapers' },
+          { id: 'babyFormula', label: 'Baby Formula' },
+          { id: 'toothbrush', label: 'Toothbrush' },
+          { id: 'toothpaste', label: 'Toothpaste' },
+          { id: 'soap', label: 'Soap / Body Wash' },
+          { id: 'babyWipes', label: 'Baby wipes' },
+          { id: 'cleaningWipes', label: 'Cleaning wipes' }
+        ]
+      },
+      {
+        id: 'kitchen',
+        label: 'Kitchen Items',
+        items: [
+          { id: 'bowls', label: 'Bowls' },
+          { id: 'plates', label: 'Plates' },
+          { id: 'cups', label: 'Cups / Mugs' },
+          { id: 'canOpener', label: 'Can Opener' },
+          { id: 'campStove', label: 'Camp Stove' },
+          { id: 'potsPans', label: 'Pots / Pans' },
+          { id: 'containers', label: 'Containers (Storage)' },
+          { id: 'silverware', label: 'Silverware (Knife/Fork/Spoon)' },
+          { id: 'utensils', label: 'Cooking Utensils' },
+          { id: 'trashBags', label: 'Trash Bags' },
+          { id: 'foilWrap', label: 'Foil / Plastic Wrap' }
+        ]
+      },
+      {
+        id: 'clothing',
+        label: 'Clothing Items',
+        items: [
+          { id: 'socks', label: 'Socks' },
+          { id: 'shorts', label: 'Shorts' },
+          { id: 'pants', label: 'Pants' },
+          { id: 'shirt', label: 'Shirt' },
+          { id: 'sweater', label: 'Sweater' },
+          { id: 'beanieScarf', label: 'Beanie / Scarf' },
+          { id: 'gloves', label: 'Gloves' },
+          { id: 'jacketHeavy', label: 'Jacket (Heavy)' },
+          { id: 'jacketRain', label: 'Jacket (Rain)' },
+          { id: 'shoes', label: 'Shoes / Boots' }
+        ]
+      },
+      {
+        id: 'living',
+        label: 'Living Items',
+        items: [
+          { id: 'backpack', label: 'Backpack' },
+          { id: 'duffle', label: 'Duffle Bag' },
+          { id: 'blankets', label: 'Blankets' },
+          { id: 'sleepingBag', label: 'Sleeping Bag' },
+          { id: 'pillow', label: 'Pillow' },
+          { id: 'umbrella', label: 'Umbrella' },
+          { id: 'propane', label: 'Propane' },
+          { id: 'tent', label: 'Tent' },
+          { id: 'cooler', label: 'Cooler' },
+          { id: 'lantern', label: 'Lantern / Flashlight' }
+        ]
+      }
+    ];
+
+    function setStatus(msg, ok = null) {
+      const el = gid('status');
+      el.textContent = msg;
+      el.classList.remove('ok', 'err');
+      if (ok === true) el.classList.add('ok');
+      if (ok === false) el.classList.add('err');
+    }
+
+    function canReachScript() {
+      return (
+        navigator.onLine &&
+        typeof google !== 'undefined' &&
+        google.script &&
+        typeof google.script.run !== 'undefined'
+      );
+    }
+
+    function updateConnectionChip(isOnline) {
+      const chip = gid('connectionChip');
+      if (!chip) return;
+      chip.classList.remove('online', 'offline');
+      chip.classList.add('connection-chip');
+      if (isOnline) {
+        chip.classList.add('online');
+        chip.textContent = 'Online — entries sync automatically';
+      } else {
+        chip.classList.add('offline');
+        chip.textContent = 'Offline — entries will be saved locally';
+      }
+    }
+
+    function getOfflineQueue() {
+      try {
+        const raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function persistOfflineQueue(queue) {
+      try {
+        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+      } catch (e) {
+        // Ignore storage issues silently.
+      }
+    }
+
+    function setToday() {
+      const today = new Date();
+      const iso = today.toISOString().split('T')[0];
+      gid('date').value = iso;
+    }
+
+    function populateClients(clients) {
+      allClients = clients || [];
+      buildClientList();
+    }
+
+    function queueOfflineEntry(data) {
+      const queue = getOfflineQueue();
+      queue.push({ ...data, queuedAt: new Date().toISOString() });
+      persistOfflineQueue(queue);
+      setStatus('Offline: entry saved on this device and will sync once online.', true);
+    }
+
+    function flushOfflineQueue() {
+      if (!canReachScript()) return;
+      const queue = getOfflineQueue();
+      if (!queue.length) return;
+
+      setStatus(`Syncing ${queue.length} offline entr${queue.length === 1 ? 'y' : 'ies'}...`);
+      const btn = gid('saveBtn');
+      if (btn) btn.disabled = true;
+
+      const sendNext = () => {
+        if (!queue.length) {
+          persistOfflineQueue(queue);
+          if (btn) btn.disabled = false;
+          setStatus('All offline entries have been synced.', true);
+          google.script.run
+            .withSuccessHandler(populateClients)
+            .withFailureHandler(() => {})
+            .getAllHHClients();
+          return;
+        }
+
+        const entry = queue[0];
+        google.script.run
+          .withSuccessHandler(() => {
+            queue.shift();
+            persistOfflineQueue(queue);
+            sendNext();
+          })
+          .withFailureHandler((err) => {
+            if (btn) btn.disabled = false;
+            setStatus(
+              (err && err.message) || 'Failed to sync offline entries. Will retry when online.',
+              false
+            );
+          })
+          .saveHHEntry(entry);
+      };
+
+      sendNext();
+    }
+
+    function buildClientList() {
+      const list = gid('clientList');
+      list.innerHTML = '';
+      if (!allClients.length) {
+        const li = document.createElement('li');
+        li.textContent = 'No clients found yet.';
+        li.className = 'muted';
+        list.appendChild(li);
+        return;
+      }
+      allClients.forEach(({ lastName, firstName }) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = `${lastName}, ${firstName}`;
+        btn.addEventListener('click', () => {
+          gid('lastNameHistory').value = lastName;
+          gid('firstNameHistory').value = firstName;
+          gid('lastName').value = lastName;
+          gid('firstName').value = firstName;
+          closeClientModal();
+          loadHistory();
+        });
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+      
+    }
+
+    function openClientModal() {
+      gid('clientModal').style.display = 'flex';
+    }
+
+    function closeClientModal() {
+      gid('clientModal').style.display = 'none';
+    }
+
+    function openHistoryModal() {
+      gid('historyModal').style.display = 'flex';
+    }
+
+    function closeHistoryModal() {
+      gid('historyModal').style.display = 'none';
+    }
+
+    function updateSignatureStatus(captured) {
+      const chip = gid('signatureStatusChip');
+      const text = gid('signatureStatusText');
+      if (captured) {
+        chip.style.display = 'inline-flex';
+        text.textContent = 'Signature captured and ready.';
+      } else {
+        chip.style.display = 'none';
+        text.textContent = 'No signature captured yet.';
+      }
+    }
+
+    function openSignatureModal() {
+      clearSignature();
+      gid('signatureModal').style.display = 'flex';
+    }
+
+    function closeSignatureModal() {
+      gid('signatureModal').style.display = 'none';
+    }
+
+    function getFormData() {
+      return {
+        date: gid('date').value.trim(),
+        lastName: gid('lastName').value.trim(),
+        firstName: gid('firstName').value.trim(),
+        clerkInitials: gid('clerkInitials').value.trim(),
+        items: gid('items').value.trim(),
+        phone: gid('phone').value.trim(),
+        adults: gid('adults').value.trim(),
+        children: gid('children').value.trim(),
+        signatureImage: signatureDataUrl || '',
+      };
+    }
+
+    function validate(data) {
+      const required = ['lastName', 'firstName', 'clerkInitials', 'items'];
+      for (const field of required) {
+        if (!data[field]) {
+          let niceName;
+          if (field === 'items') {
+            niceName = 'the items list';
+          } else if (field === 'clerkInitials') {
+            niceName = 'clerk initials';
+          } else {
+            niceName = field.replace(/([A-Z])/g, ' $1').toLowerCase();
+          }
+          setStatus('Please fill out ' + niceName + '.', false);
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function renderHistory(entries) {
+      historyEntries = entries || [];
+      const container = gid('historyList');
+      container.innerHTML = '';
+
+      if (!historyEntries || historyEntries.length === 0) {
+        container.innerHTML = '<p class="muted">No visits found for this client.</p>';
+        return;
+      }
+
+      const sorted = historyEntries.slice().sort((a, b) => {
+        const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+        const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+        const va = isNaN(ta) ? 0 : ta;
+        const vb = isNaN(tb) ? 0 : tb;
+        return vb - va; // newest first
+      });
+
+      sorted.forEach((entry) => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+
+        const dateStr = entry.timestamp
+          ? new Date(entry.timestamp).toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+            })
+          : 'Unknown';
+
+        const head = document.createElement('div');
+        head.className = 'history-head';
+        const dateSpan = document.createElement('span');
+        dateSpan.textContent = dateStr;
+        head.appendChild(dateSpan);
+
+        const itemsText = document.createElement('div');
+        itemsText.className = 'items-text';
+        itemsText.textContent = entry.items || '';
+
+        div.appendChild(head);
+        div.appendChild(itemsText);
+
+        if (entry.signatureImage) {
+          const img = document.createElement('img');
+          img.src = entry.signatureImage;
+          img.alt = 'Signature image';
+          img.width = 240;
+          img.height = 80;
+          img.style.marginTop = '8px';
+          img.style.borderRadius = '8px';
+          img.style.border = '1px solid rgba(96, 92, 128, 0.8)';
+          div.appendChild(img);
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    function loadHistory() {
+      const lastName = gid('lastNameHistory').value.trim();
+      const firstName = gid('firstNameHistory').value.trim();
+      if (!lastName || !firstName) {
+        setStatus('Enter a last and first name to load history.', false);
+        return;
+      }
+      if (!canReachScript()) {
+        setStatus('Offline: history cannot be loaded right now.', false);
+        return;
+      }
+      setStatus('Loading history...');
+      gid('historyTitle').textContent = `History: ${lastName}, ${firstName}`;
+      google.script.run
+        .withSuccessHandler((res) => {
+          renderHistory(res);
+          setStatus(
+            res && res.length
+              ? `Loaded ${res.length} visit(s).`
+              : 'No visits found for that name.',
+            !!(res && res.length)
+          );
+          openHistoryModal();
+        })
+        .withFailureHandler((err) => {
+          setStatus(err.message || 'Failed to load history.', false);
+        })
+        .getHHHistory(lastName, firstName);
+    }
+
+    function saveEntry() {
+      const data = getFormData();
+      if (!validate(data)) return;
+      const btn = gid('saveBtn');
+      btn.disabled = true;
+      setStatus('Saving...');
+
+      if (!canReachScript()) {
+        queueOfflineEntry(data);
+        btn.disabled = false;
+        clearForm();
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(() => {
+          btn.disabled = false;
+          setStatus('Saved.', true);
+
+          gid('items').value = '';
+          gid('phone').value = '';
+          gid('adults').value = '';
+          gid('children').value = '';
+
+          signatureDataUrl = '';
+          hasSignature = false;
+          updateSignatureStatus(false);
+          resetItemsMenu();
+
+          google.script.run
+            .withSuccessHandler(populateClients)
+            .withFailureHandler(() => {})
+            .getAllHHClients();
+        })
+        .withFailureHandler((err) => {
+          btn.disabled = false;
+          setStatus(err.message || 'Failed to save entry.', false);
+        })
+        .saveHHEntry(data);
+    }
+
+    function clearForm() {
+      setToday();
+      gid('items').value = '';
+      gid('phone').value = '';
+      gid('adults').value = '';
+      gid('children').value = '';
+      signatureDataUrl = '';
+      hasSignature = false;
+      updateSignatureStatus(false);
+      clearSignature();
+      resetItemsMenu();
+    }
+
+    function clearHistorySection() {
+      gid('lastNameHistory').value = '';
+      gid('firstNameHistory').value = '';
+      historyEntries = [];
+      const container = gid('historyList');
+      if (container) container.innerHTML = '';
+      closeHistoryModal();
+      setStatus('History cleared.', true);
+    }
+
+    function clearSignature() {
+      if (!signatureCtx || !signatureCanvas) return;
+      signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+      signatureCtx.beginPath();
+      hasSignature = false;
+    }
+
+    function startDrawing(evt) {
+      if (!signatureCtx) return;
+      isDrawing = true;
+      signatureCtx.beginPath();
+      const { x, y } = getCanvasCoords(evt);
+      signatureCtx.moveTo(x, y);
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function drawSignature(evt) {
+      if (!isDrawing || !signatureCtx) return;
+      evt.preventDefault();
+      const { x, y } = getCanvasCoords(evt);
+      signatureCtx.lineWidth = 2.5;
+      signatureCtx.strokeStyle = '#000';
+      signatureCtx.lineTo(x, y);
+      signatureCtx.stroke();
+      signatureCtx.beginPath();
+      signatureCtx.moveTo(x, y);
+      hasSignature = true;
+    }
+
+    function getCanvasCoords(evt) {
+      const rect = signatureCanvas.getBoundingClientRect();
+      const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function resizeSignatureCanvas() {
+      if (!signatureCanvas || !signatureCtx) return;
+      const ratio = window.devicePixelRatio || 1;
+      const displayWidth = Math.max(420, signatureCanvas.clientWidth || 0);
+      const displayHeight = Math.max(180, Math.round(displayWidth * 0.4));
+      signatureCanvas.width = displayWidth * ratio;
+      signatureCanvas.height = displayHeight * ratio;
+      signatureCanvas.style.height = `${displayHeight}px`;
+      signatureCanvas.style.width = '100%';
+      signatureCtx.scale(ratio, ratio);
+      clearSignature();
+    }
+
+    function initSignaturePad() {
+      signatureCanvas = gid('signatureCanvas');
+      if (!signatureCanvas) return;
+      signatureCtx = signatureCanvas.getContext('2d');
+      signatureCtx.lineJoin = 'round';
+      signatureCtx.lineCap = 'round';
+      resizeSignatureCanvas();
+      clearSignature();
+      const options = { passive: false };
+      ['pointerdown', 'pointermove'].forEach((evtName) => {
+        signatureCanvas.addEventListener(evtName, (evt) => {
+          if (evtName === 'pointerdown') {
+            signatureCanvas.setPointerCapture(evt.pointerId);
+            startDrawing(evt);
+          } else {
+            drawSignature(evt);
+          }
+        }, options);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach((evtName) => {
+        signatureCanvas.addEventListener(evtName, stopDrawing, options);
+      });
+      gid('clearSignatureBtn').addEventListener('click', () => {
+        clearSignature();
+      });
+      gid('confirmSignatureBtn').addEventListener('click', () => {
+        if (!hasSignature) {
+          signatureDataUrl = '';
+          updateSignatureStatus(false);
+        } else {
+          signatureDataUrl = signatureCanvas.toDataURL('image/png');
+          updateSignatureStatus(true);
+        }
+        closeSignatureModal();
+      });
+      window.addEventListener('resize', resizeSignatureCanvas);
+    }
+
+    function buildItemsMenu() {
+  const container = gid('itemsMenu');
+  if (!container) return;
+  container.innerHTML = '';
+
+  ITEM_CATEGORIES.forEach((cat) => {
+    const box = document.createElement('div');
+    box.className = 'items-category';
+
+    const header = document.createElement('div');
+    header.className = 'items-category-header';
+    header.textContent = cat.label;
+
+    header.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      // close all other open popouts
+      document.querySelectorAll('.items-category.open').forEach((openCat) => {
+        if (openCat !== box) openCat.classList.remove('open');
+      });
+
+      box.classList.toggle('open');
+    });
+
+    const body = document.createElement('div');
+    body.className = 'items-category-body';
+
+    cat.items.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'items-item';
+
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+
+const label = document.createElement('label');
+label.textContent = item.label;
+label.style.cursor = 'pointer';
+label.addEventListener('click', (e) => {
+  e.preventDefault();
+  check.checked = !check.checked;
+  check.dispatchEvent(new Event('change'));
+});
+
+      const qty = document.createElement('input');
+      qty.type = 'number';
+      qty.min = '1';
+      qty.className = 'items-menu-qty';
+      qty.id = `item-${cat.id}-${item.id}`;
+      qty.disabled = true;
+
+      check.addEventListener('change', () => {
+        qty.disabled = !check.checked;
+        qty.value = check.checked ? '1' : '';
+        updateItemsTextarea();
+      });
+
+      qty.addEventListener('input', updateItemsTextarea);
+
+      row.append(check, label, qty);
+      body.appendChild(row);
+    });
+
+    box.append(header, body);
+    container.appendChild(box);
+  });
+}
+
+    function getItemsSummaryFromMenu() {
+      const lines = [];
+      ITEM_CATEGORIES.forEach((cat) => {
+        const parts = [];
+        cat.items.forEach((item) => {
+          const input = gid(`item-${cat.id}-${item.id}`);
+          if (!input) return;
+          const qty = parseInt(input.value, 10);
+          if (qty > 0) {
+            parts.push(`${item.label} x${qty}`);
+          }
+        });
+        if (parts.length) {
+          lines.push(`${cat.label}: ${parts.join(', ')}`);
+        }
+      });
+      return lines.join('\n');
+    }
+
+    function getCustomItemsSummary() {
+      if (!customItems.length) return '';
+      const parts = customItems.map((ci) => `${ci.name} x${ci.qty}`);
+      return `Additional items: ${parts.join(', ')}`;
+    }
+
+    function updateItemsTextarea() {
+      const textarea = gid('items');
+      if (!textarea) return;
+      const lines = [];
+      const menuSummary = getItemsSummaryFromMenu();
+      const customSummary = getCustomItemsSummary();
+      if (menuSummary) lines.push(menuSummary);
+      if (customSummary) lines.push(customSummary);
+      textarea.value = lines.join('\n');
+    }
+
+function resetItemsMenu() {
+  document.querySelectorAll('.items-menu-qty').forEach((input) => {
+    input.value = '';
+    input.disabled = true;
+  });
+
+  document.querySelectorAll('#itemsMenu input[type="checkbox"]').forEach((cb) => {
+    cb.checked = false;
+  });
+
+  document.querySelectorAll('.items-category').forEach((cat) => {
+    cat.classList.remove('open');
+  });
+
+  customItems = [];
+  const customName = gid('customItemName');
+  const customQty = gid('customItemQty');
+  if (customName) customName.value = '';
+  if (customQty) customQty.value = '';
+  updateItemsTextarea();
+}
+
+
+    function addCustomItem() {
+      const nameInput = gid('customItemName');
+      const qtyInput = gid('customItemQty');
+      if (!nameInput || !qtyInput) return;
+
+      const name = nameInput.value.trim();
+      const qtyRaw = qtyInput.value.trim();
+      const qty = qtyRaw === '' ? 1 : parseInt(qtyRaw, 10);
+
+      if (!name || Number.isNaN(qty) || qty <= 0) {
+        setStatus('Enter a custom item and a quantity of at least 1.', false);
+        return;
+      }
+
+      customItems.push({ name, qty });
+      nameInput.value = '';
+      qtyInput.value = '';
+      updateItemsTextarea();
+      setStatus('Custom item added.', true);
+    }
+
+    function attachEvents() {
+      gid('saveBtn').addEventListener('click', saveEntry);
+      gid('loadHistoryBtn').addEventListener('click', loadHistory);
+      gid('clearFormBtn').addEventListener('click', clearForm);
+      gid('clearHistoryBtn').addEventListener('click', clearHistorySection);
+
+      gid('openClientPickerBtn').addEventListener('click', openClientModal);
+      gid('closeClientModalBtn').addEventListener('click', closeClientModal);
+      gid('clientModal').addEventListener('click', (e) => {
+        if (e.target === gid('clientModal')) closeClientModal();
+      });
+
+      gid('closeHistoryModalBtn').addEventListener('click', closeHistoryModal);
+      gid('historyModal').addEventListener('click', (e) => {
+        if (e.target === gid('historyModal')) closeHistoryModal();
+      });
+
+      gid('openSignatureBtn').addEventListener('click', openSignatureModal);
+      gid('closeSignatureModalBtn').addEventListener('click', () => {
+        closeSignatureModal();
+      });
+      gid('signatureModal').addEventListener('click', (e) => {
+        if (e.target === gid('signatureModal')) closeSignatureModal();
+      });
+
+      const addCustomBtn = gid('addCustomItemBtn');
+      if (addCustomBtn) {
+        addCustomBtn.addEventListener('click', addCustomItem);
+      }
+    }
+
+    function init() {
+      setToday();
+      updateSignatureStatus(false);
+      initSignaturePad();
+      buildItemsMenu();
+      resetItemsMenu();
+      attachEvents();
+      updateConnectionChip(canReachScript());
+      setStatus('Ready.', true);
+
+      if (canReachScript()) {
+        google.script.run
+          .withSuccessHandler(populateClients)
+          .withFailureHandler(() => {})
+          .getAllHHClients();
+        flushOfflineQueue();
+      } else {
+        const pending = getOfflineQueue().length;
+        if (pending) {
+          setStatus(`Offline: ${pending} entr${pending === 1 ? 'y is' : 'ies are'} waiting to sync.`, false);
+        }
+      }
+
+      window.addEventListener('online', () => {
+        updateConnectionChip(canReachScript());
+        if (canReachScript()) {
+          google.script.run
+            .withSuccessHandler(populateClients)
+            .withFailureHandler(() => {})
+            .getAllHHClients();
+          flushOfflineQueue();
+        }
+      });
+
+      window.addEventListener('offline', () => {
+        updateConnectionChip(false);
+        setStatus('Offline: entries will be stored locally until you are back online.', false);
+      });
+    }
+
+    // Close item popouts when clicking outside the menu
+document.addEventListener('click', (e) => {
+  const menu = gid('itemsMenu');
+  if (!menu) return;
+
+  if (!menu.contains(e.target)) {
+    document.querySelectorAll('.items-category.open')
+      .forEach((cat) => cat.classList.remove('open'));
+  }
+});
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
