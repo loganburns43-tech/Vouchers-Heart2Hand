@@ -49,6 +49,43 @@
       background:linear-gradient(180deg,rgba(24,22,33,0.96),rgba(24,22,33,0));
     }
     .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .switcher-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:260px;}
+    .switcher-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:4px;}
+    .switcher-actions button{
+      flex:0 0 auto;
+      min-height:38px;
+      padding:10px 14px;
+      font-size:0.95rem;
+      text-transform:none;
+      border-radius:12px;
+      box-shadow:none;
+    }
+    .switcher-btn{
+      background:transparent;
+      border:1px solid rgba(148,163,184,.5);
+      color:var(--text);
+      font-weight:850;
+    }
+    .switcher-btn:hover{background:rgba(148,163,184,0.12);}
+    .switcher-preload{
+      background:linear-gradient(135deg,rgba(148,163,184,0.18),rgba(56,189,248,0.16));
+      border:1px solid rgba(148,163,184,.6);
+      color:#e2f3fa;
+      font-weight:900;
+      box-shadow:0 10px 18px rgba(56,189,248,0.18);
+    }
+    .switcher-preload:hover{filter:brightness(1.05);}
+    .switch-status{font-size:0.86rem;color:var(--muted);text-align:right;min-height:18px;}
+    .switch-status.ok{color:var(--ok);}
+    .switch-status.err{color:#fca5a5;}
+    .switch-pill{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--border);background:var(--surface);
+      font-weight:800;font-size:0.85rem;color:var(--muted);
+      min-height:30px;
+    }
+    .switch-pill.ok{color:var(--ok);border-color:rgba(156,207,216,.55);}
     .history-cta{
       flex:0 0 auto;min-width:140px;padding:12px 16px;border-radius:14px;
       border:1px solid rgba(148,163,184,.4);
@@ -577,10 +614,20 @@ body.sig-drawing {
     <div class="card">
       <div class="top-row">
         <h1>＋ Client Entry</h1>
-        <div class="top-actions">
-          <button class="history-cta" id="historyBtn" type="button" onclick="openHistory()">History</button>
-          <button class="profile-cta" id="editProfileBtn" type="button" onclick="openProfileEditor()">Edit Profile</button>
-          <button class="client-cta" id="clientBtn" type="button" onclick="openClientList()">Clients</button>
+        <div class="switcher-wrap">
+          <div class="top-actions">
+            <button class="history-cta" id="historyBtn" type="button" onclick="openHistory()">History</button>
+            <button class="profile-cta" id="editProfileBtn" type="button" onclick="openProfileEditor()">Edit Profile</button>
+            <button class="client-cta" id="clientBtn" type="button" onclick="openClientList()">Clients</button>
+          </div>
+          <div class="switcher-actions">
+            <button class="switcher-btn" type="button" id="switchToHHBtn">Switch to Heart to Hand</button>
+            <button class="switcher-preload" type="button" id="preloadBtn">Preload both apps for offline</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+            <span id="preloadIndicator" class="switch-pill" style="display:none;">Preloaded</span>
+          </div>
+          <div id="switchStatus" class="switch-status"></div>
         </div>
       </div>
 
@@ -817,6 +864,95 @@ body.sig-drawing {
 
   <script>
     const gid = id => document.getElementById(id);
+    const PRELOAD_KEY = 'vh_offline_preloaded';
+    const APP_LINKS = {
+      heartToHand: 'https://script.google.com/macros/s/AKfycbzrHlvPRLXEaGHOgHpzpHCWBCw35gtgD-rwYMZrgkoC2AZ-7qrSzmDC_coBcy1yC-QBKQ/exec',
+      vouchers: 'https://script.google.com/macros/s/AKfycbygpSPweMoLYetb4UgHeuvi5JCbacVT6S0Yr2il2JDV08bj1NQ6kEpLx96F4fVTJF7a8A/exec',
+      windowName: 'heart2hand_vouchers_app'
+    };
+
+    function setSwitchStatus(message, state = '') {
+      const el = gid('switchStatus');
+      if (!el) return;
+      el.textContent = message || '';
+      el.classList.remove('ok', 'err');
+      if (state === 'ok') el.classList.add('ok');
+      if (state === 'err') el.classList.add('err');
+    }
+
+    function loadPreloadState() {
+      try {
+        const raw = localStorage.getItem(PRELOAD_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function showPreloadIndicator() {
+      const indicator = gid('preloadIndicator');
+      const state = loadPreloadState();
+      if (!indicator) return;
+      if (state && state.at) {
+        const ts = new Date(state.at);
+        const time = ts.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        indicator.style.display = 'inline-flex';
+        indicator.textContent = `Preloaded • ${time}`;
+        indicator.classList.add('ok');
+      } else {
+        indicator.style.display = 'none';
+        indicator.classList.remove('ok');
+      }
+    }
+
+    function openNamedWindow(url) {
+      const win = window.open(url, APP_LINKS.windowName);
+      if (!win) {
+        setSwitchStatus(
+          `Popup blocked. Allow popups for this site or manually open: ${url}`,
+          'err'
+        );
+        return null;
+      }
+      return win;
+    }
+
+    function switchToHeart() {
+      const win = openNamedWindow(APP_LINKS.heartToHand);
+      if (!win) return;
+      try { win.focus(); } catch (e) {}
+      if (!navigator.onLine) {
+        setSwitchStatus(
+          'Offline — switching will only work if the other app tab is already open.',
+          'err'
+        );
+      } else {
+        setSwitchStatus('Switching to Heart to Hand…', 'ok');
+      }
+    }
+
+    function markPreloaded() {
+      try {
+        localStorage.setItem(PRELOAD_KEY, JSON.stringify({ at: new Date().toISOString() }));
+      } catch (e) {}
+      showPreloadIndicator();
+    }
+
+    function preloadApps() {
+      const win = openNamedWindow(APP_LINKS.heartToHand);
+      if (!win) return;
+      markPreloaded();
+      setSwitchStatus('Preloaded Heart to Hand tab. Keep both tabs open for offline use.', 'ok');
+      setTimeout(() => {
+        try { window.focus(); } catch (e) {}
+      }, 200);
+    }
+
+    function handleOfflineNotice() {
+      if (!navigator.onLine) {
+        setSwitchStatus('Offline — switching will only work if the other app tab is already open.');
+      }
+    }
 
     let _chimePrimed = false;
     let _chimeSrc = null;
@@ -900,8 +1036,11 @@ body.sig-drawing {
     }
     window.addEventListener("online", updateOfflineState);
     window.addEventListener("offline", updateOfflineState);
+    window.addEventListener("offline", handleOfflineNotice);
     document.addEventListener("DOMContentLoaded", () => {
   updateOfflineState();
+  showPreloadIndicator();
+  handleOfflineNotice();
 
   // if snapshot already exists locally, allow offline reads immediately
   const snap = getSnapshotMap();
@@ -1072,6 +1211,7 @@ function getCacheCounts(){
     window.addEventListener('online', () => {
       updateOfflineState();
       syncOfflineQueue();
+      setSwitchStatus('Online — you can switch tabs normally.', 'ok');
     });
 
     /* === AUTO WARM OFFLINE CACHE (runs on page load when online) === */
@@ -1488,6 +1628,15 @@ if(!navigator.onLine){
         renderLive();
       });
     });
+
+    const switchBtn = gid('switchToHHBtn');
+    if(switchBtn){
+      switchBtn.addEventListener('click', switchToHeart);
+    }
+    const preloadBtn = gid('preloadBtn');
+    if(preloadBtn){
+      preloadBtn.addEventListener('click', preloadApps);
+    }
 
     /* ===== Field bindings ===== */
     ['log_last','log_first'].forEach(id => {
