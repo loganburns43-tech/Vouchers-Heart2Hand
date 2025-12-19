@@ -1,0 +1,2701 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Client Tools</title>
+  <style>
+    :root{
+      --bg:#181621; --card:#1d1a2b; --surface:#26233a; --border:#332f47;
+      --text:#ffffff; --muted:#c6c3e0; --accent:#eb6f92; --secondary:#31748f;
+      --ok:#9ccfd8; --shadow:0 12px 30px rgba(0,0,0,.35); --r:16px;
+      --gradA:#7cb6ff; --gradB:#b497ff;
+      --cta:#22c55e; --cta-dark:#15803d; --cta-glow:rgba(34,197,94,.35);
+    }
+
+    html{font-size:19px;-webkit-text-size-adjust:100%}
+    @media (min-width:1024px){html{font-size:21px}}
+    @media (max-width:420px){html{font-size:18px}}
+
+    html,body{
+      margin:0;padding:0;background:var(--bg);color:var(--text);
+      font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial
+    }
+    body{min-height:100dvh}
+    body.sig-drawing{overflow:hidden;touch-action:none;overscroll-behavior:none;}
+
+    .wrap{
+      min-height:100dvh;display:flex;justify-content:center;align-items:flex-start;
+      padding:38px 18px
+    }
+    .card{
+      width:100%;max-width:1000px;background:var(--card);
+      border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);
+      padding:28px;backdrop-filter:blur(12px);
+      position:relative;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(1.8rem,2vw + 1rem,2.2rem);
+      font-weight:900;color:var(--accent);letter-spacing:.2px
+    }
+
+    .top-row{
+      display:flex;justify-content:space-between;align-items:center;gap:14px;
+      flex-wrap:wrap;margin-bottom:10px;
+      position:sticky;top:0;z-index:40;
+      padding:6px 0 10px;
+      background:linear-gradient(180deg,rgba(24,22,33,0.96),rgba(24,22,33,0));
+    }
+    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .history-cta{
+      flex:0 0 auto;min-width:140px;padding:12px 16px;border-radius:14px;
+      border:1px solid rgba(148,163,184,.4);
+      background:linear-gradient(135deg,rgba(34,197,94,0.18),rgba(56,189,248,0.18));
+      color:var(--text);font-weight:850;letter-spacing:.3px;
+      cursor:pointer;transition:transform .08s ease,filter .15s ease,box-shadow .2s ease;
+      box-shadow:0 8px 20px rgba(0,0,0,.28);
+    }
+    .history-cta:hover{filter:brightness(1.06)}
+    .history-cta:active{transform:translateY(1px)}
+    .history-cta:focus-visible{outline:3px solid rgba(34,197,94,.5);outline-offset:3px}
+    .client-cta{
+      flex:0 0 auto;min-width:180px;padding:16px 20px;border-radius:16px;
+      border:1px solid rgba(156,207,216,.55);
+      background:linear-gradient(130deg,#9ccfd8,#b8e6f2,#9ccfd8);
+      box-shadow:0 0 26px rgba(156,207,216,.55),0 0 18px rgba(156,207,216,.28);
+      color:#0b1224;font-weight:900;font-size:1.05rem;letter-spacing:.35px;
+      text-transform:uppercase;cursor:pointer;
+      transition:transform .08s ease,filter .15s ease,box-shadow .2s ease;
+    }
+    .client-cta:hover{filter:brightness(1.05)}
+    .client-cta:active{transform:translateY(1px)}
+    .client-cta:focus-visible{outline:3px solid rgba(156,207,216,.7);outline-offset:4px}
+    .profile-cta{
+      flex:0 0 auto;min-width:150px;padding:12px 16px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:linear-gradient(135deg,rgba(49,116,143,0.32),rgba(235,111,146,0.16));
+      color:var(--text);font-weight:850;letter-spacing:.3px;
+      cursor:pointer;transition:transform .08s ease,filter .15s ease,box-shadow .2s ease;
+      box-shadow:0 8px 20px rgba(0,0,0,.28);
+    }
+    .profile-cta:hover{filter:brightness(1.05)}
+    .profile-cta:active{transform:translateY(1px)}
+    .profile-cta:focus-visible{outline:3px solid rgba(235,111,146,.5);outline-offset:3px}
+
+    .danger-zone{
+      margin-top:18px;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid rgba(248,113,113,.35);
+      background:rgba(127,29,29,0.12);
+    }
+    .danger-zone h3{
+      margin:0 0 6px;
+      color:#fecdd3;
+      font-size:1.1rem;
+      letter-spacing:.3px;
+    }
+    .danger-zone p{
+      margin:0 0 10px;
+      color:#fca5a5;
+      font-weight:700;
+      font-size:.98rem;
+    }
+    .danger-btn{
+      background:linear-gradient(135deg,#ef4444,#b91c1c);
+      box-shadow:0 0 14px rgba(239,68,68,.35);
+    }
+    .danger-btn:hover{filter:brightness(1.05)}
+    .danger-btn:active{transform:translateY(1px)}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+    @media (max-width:760px){.grid2{grid-template-columns:1fr}}
+
+    label{
+      display:block;margin:16px 0 8px;color:var(--muted);
+      font-size:1.05rem;font-weight:700;letter-spacing:0.2px
+    }
+    input,textarea{
+      width:100%;box-sizing:border-box;padding:14px;
+      border-radius:14px;border:1px solid var(--border);
+      background:var(--surface);color:var(--text);
+      font-size:1.05rem;outline:none;
+      transition:border-color .18s,box-shadow .18s,background .18s;
+      font-family:inherit;
+    }
+    .readonly-field{
+      background:rgba(38,35,58,0.65);
+      color:var(--muted);
+      pointer-events:none;
+      cursor:not-allowed;
+    }
+    .readonly-field:focus{
+      border-color:var(--border);
+      box-shadow:none;
+    }
+    input:focus,textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(235,111,146,.28);
+    }
+    input::placeholder,textarea::placeholder{
+      color:#d6d3f0;opacity:1;font-weight:600;
+    }
+
+    .actions{
+      display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;align-items:center
+    }
+    button{
+      flex:1 1 220px;min-height:52px;padding:16px 14px;border:0;border-radius:14px;
+      font-weight:900;font-size:1.05rem;color:#fff;background:var(--accent);
+      cursor:pointer;transition:transform .06s,opacity .15s,filter .2s
+    }
+    button.ghost{
+      background:transparent;color:#fff;border:1px solid var(--border);
+      flex:0 0 auto;min-height:40px;padding:10px 12px;font-size:.98rem
+    }
+    button[disabled]{opacity:.6;cursor:not-allowed}
+    .disabled-during-save{opacity:.55 !important;cursor:not-allowed !important}
+    button:hover{filter:brightness(1.05)}
+    button:active{transform:translateY(1px)}
+    button:focus-visible{outline:3px solid rgba(235,111,146,.5);outline-offset:2px}
+
+    .sig-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      margin-top:14px;
+      text-align:center;
+    }
+    .sig-wrap label{
+      margin:0;
+      font-weight:950;
+      color:var(--text);
+      text-align:center;
+      font-size:1.16rem;
+      letter-spacing:.2px;
+    }
+    .sig-hint{
+      color:var(--muted);
+      font-weight:780;
+      font-size:1.02rem;
+    }
+    #sigPad {
+  width: 100%;
+  max-width: 420px;
+  height: 140px;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  touch-action: none;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 10px 26px rgba(0,0,0,.28);
+}
+
+    .sig-actions{
+      display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;justify-content:center;
+    }
+    .sig-actions button{flex:1 1 200px}
+    .sig-actions .ghost{flex:0 0 auto}
+    .sig-submit{
+      background:linear-gradient(135deg,var(--cta),var(--cta-dark));
+      box-shadow:0 0 20px var(--cta-glow),0 0 6px rgba(0,0,0,.25);
+      color:#f0fdf4;text-transform:uppercase;letter-spacing:.6px;
+    }
+    .sig-submit:hover{filter:brightness(1.05)}
+    .sig-submit:focus-visible{outline:3px solid rgba(34,197,94,.4);outline-offset:3px}
+
+    .result,.msg{
+      margin-top:12px;white-space:pre-wrap;line-height:1.7;font-size:1.1rem
+    }
+    .ok{color:var(--ok)}
+    .muted{color:var(--muted)}
+    .accent{color:var(--accent);font-weight:900}
+
+    /* Cash bubbles */
+    .cash-buttons{
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-start;margin-top:-2px
+    }
+    .cash-btn{
+      flex:0 0 62px;width:62px;height:62px;border-radius:50%;
+      background:var(--surface);color:var(--text);border:2px solid var(--border);
+      font-weight:800;font-size:1rem;cursor:pointer;display:flex;align-items:center;
+      justify-content:center;transition:background .2s,border-color .2s,box-shadow .2s,transform .1s;
+      box-shadow:0 0 14px rgba(124,182,255,.25)
+    }
+    .cash-btn.selected{
+      background:linear-gradient(135deg,var(--gradA),var(--gradB));
+      color:#fff;border-color:transparent;box-shadow:0 0 22px rgba(180,151,255,.65)
+    }
+
+    /* Live balance pill */
+    .status-stack{display:grid;gap:10px;align-content:start;align-self:end}
+    .livebox{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;padding:8px 12px;min-width:240px;
+      box-shadow:0 6px 16px rgba(0,0,0,.22)
+    }
+    .livebox .title{
+      font-size:.78rem;font-weight:800;color:var(--muted);
+      letter-spacing:.2px;margin-bottom:4px
+    }
+    .livebox .big{
+      font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:2px
+    }
+    .livebox .row{font-size:.86rem;color:var(--muted)}
+    .livebox .live-phone{
+      font-size:.78rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:.18px;margin-bottom:6px
+    }
+    .livebox .row b{color:var(--text)}
+    .livebox.ok{
+      border-color:var(--ok);
+      box-shadow:0 0 22px rgba(156,207,216,.35),0 6px 16px rgba(0,0,0,.22)
+    }
+    .livebox.ok .title{color:var(--ok)}
+    input.valid-phone{
+      border-color:var(--ok);
+      box-shadow:0 0 0 3px rgba(156,207,216,.28)
+    }
+
+    /* Overrides row */
+    .override-row{
+      display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end
+    }
+    @media (max-width:760px){.override-row{grid-template-columns:1fr}}
+
+    /* === Overlay background (blur behind modal only) === */
+    .modal-overlay{
+      position:fixed;inset:0;
+      background:rgba(0,0,0,0.55);
+      display:none;align-items:flex-start;justify-content:center;
+      padding:clamp(12px,4vh,28px) 12px 20px;
+      z-index:2000;
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      opacity:0;transition:opacity 0.25s ease;
+      overflow-y:auto;
+    }
+    .client-overlay{
+      align-items:center;
+      padding:calc(env(safe-area-inset-top,0) + 14px) 16px 24px;
+    }
+.confirm-overlay{
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,0.35);
+  pointer-events:auto;
+}
+    .modal-overlay.show{
+      display:flex;opacity:1;
+    }
+
+    .modal{
+      position:relative;z-index:2100;
+      display:flex;flex-direction:column;
+      width:100%;max-width:760px;max-height:80vh;
+      background:rgba(29,26,43,0.96);
+      border:1px solid var(--border);border-radius:16px;
+      box-shadow:0 18px 48px rgba(0,0,0,.35),0 0 24px rgba(235,111,146,.15);
+      padding:22px;color:var(--text);text-align:left;
+      transform:translateY(20px);opacity:0;
+      transition:transform .35s ease,opacity .35s ease;
+      overflow:auto;
+    }
+    .modal.mini-confirm{
+      max-width:420px;
+      padding:16px 16px 14px;
+      box-shadow:0 14px 34px rgba(0,0,0,.32),0 0 18px rgba(124,182,255,.18);
+      font-size:1.02rem;
+      gap:10px;
+    }
+    .mini-confirm h2{font-size:1.38rem;letter-spacing:.22px;margin-bottom:6px;}
+    .mini-confirm .kvs{font-size:1.1rem;line-height:1.64;gap:10px 12px;}
+    .mini-confirm .kv-label{color:#d8deff;font-weight:780;}
+    .mini-confirm .kv-value{color:#f8fafc;font-weight:970;font-size:1.16rem;}
+    .modal-overlay.show .modal{
+      transform:translateY(0);opacity:1;
+    }
+
+    .modal.client-modal{
+      max-width:640px;display:flex;flex-direction:column;gap:12px;
+      max-height:75vh;
+      margin:0 auto;
+    }
+    .modal.history-modal{
+      max-width:520px;
+      margin-left:auto;margin-right:auto;
+      box-shadow:0 18px 44px rgba(0,0,0,.36),0 0 20px rgba(148,163,184,.22);
+      gap:12px;
+    }
+    .modal.profile-modal{max-width:520px;gap:6px;}
+    .client-modal h2{margin-bottom:2px;}
+    .client-modal .client-search{
+      width:100%;padding:12px;border-radius:12px;
+      border:1px solid var(--border);background:var(--surface);
+      color:var(--text);font-weight:700;
+      position:sticky;top:0;z-index:1;
+    }
+    .client-modal .client-list{
+      flex:1;min-height:220px;
+      max-height:unset;overflow-y:auto;padding-right:6px;
+      margin-top:4px;
+      overscroll-behavior:contain;
+    }
+    .history-body{max-height:62vh;overflow:auto;display:grid;gap:12px;}
+    .history-list{display:grid;gap:10px;}
+    .receipt-card{
+      border:1px solid rgba(148,163,184,0.28);
+      background:linear-gradient(135deg,rgba(34,197,94,0.07),rgba(56,189,248,0.06));
+      border-radius:14px;padding:12px 14px;
+      box-shadow:0 10px 20px rgba(0,0,0,.18);
+    }
+    .receipt-card .row{display:flex;justify-content:space-between;gap:8px;align-items:center;}
+    .receipt-card .who{font-weight:900;font-size:1.05rem;}
+    .receipt-card .when{color:var(--muted);font-weight:750;}
+    .receipt-card .kv{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;color:var(--muted);font-weight:750;}
+    .receipt-card .tag{padding:6px 10px;border-radius:10px;background:rgba(15,23,42,0.28);color:var(--text);font-weight:850;}
+    .receipt-card .tag.before{background:rgba(234,179,8,0.18);color:#fde68a;border:1px solid rgba(234,179,8,0.35);}
+    .receipt-card .tag.after{background:rgba(34,197,94,0.16);color:#bbf7d0;border:1px solid rgba(34,197,94,0.32);}
+    .receipt-card .tag.spent{background:rgba(239,68,68,0.18);color:#fecdd3;border:1px solid rgba(239,68,68,0.32);}
+    .receipt-card .tag.bubble{background:rgba(59,130,246,0.18);color:#bfdbfe;border:1px solid rgba(59,130,246,0.35);}
+    .receipt-card .notes{margin-top:6px;color:var(--muted);font-weight:700;}
+
+    .modal h2{
+      margin:0 0 6px;font-size:1.5rem;
+      color:var(--accent);letter-spacing:.3px
+    }
+    .kvs{
+      display:grid;grid-template-columns:auto 1fr;
+      gap:10px 16px;margin:12px 0 6px
+    }
+    .kv-label{color:#cbc9e6;text-align:right}
+    .kv-value{color:#fff;font-weight:800}
+    .kv-value.prev{color:#ff9fb7}
+    .kv-value.new{color:#a4e4ff}
+    #c_used{color:#ef4444;}
+    #c_new{color:#22c55e;}
+
+    /* === VISUAL ENHANCEMENTS === */
+    @keyframes shimmer{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    #saveBtn{
+      background:linear-gradient(270deg,#cfd3ff,#7cb6ff,#b497ff,#eb6f92,#cfd3ff);
+      background-size:400% 400%;
+      animation:shimmer 14s ease-in-out infinite;
+      box-shadow:0 0 22px rgba(180,151,255,.4),
+                 inset 0 0 10px rgba(255,255,255,.1);
+      min-height:64px;
+      font-size:1.12rem;
+      letter-spacing:.4px;
+      border:1px solid rgba(255,255,255,.12);
+      text-transform:uppercase;
+    }
+
+    @keyframes bubbleGlow{
+      0%,100%{box-shadow:0 0 14px rgba(124,182,255,.25);transform:scale(1);}
+      50%{box-shadow:0 0 28px rgba(180,151,255,.55);transform:scale(1.05);}
+    }
+    .cash-btn.selected{animation:bubbleGlow 2.8s ease-in-out infinite;}
+
+    @keyframes pulseLive{
+      0%,100%{box-shadow:0 0 22px rgba(156,207,216,.25),0 6px 16px rgba(0,0,0,.22);}
+      50%{box-shadow:0 0 36px rgba(156,207,216,.55),0 6px 16px rgba(0,0,0,.22);}
+    }
+    .livebox.ok{animation:pulseLive 5s ease-in-out infinite;}
+
+    /* Compact bottom status bar */
+    #statusBar{
+      position:fixed;
+      left:50%;bottom:calc(env(safe-area-inset-bottom,0) + 12px);
+      transform:translateX(-50%) translateY(8px);
+      background:rgba(49,116,143,0.95);
+      color:#e2f3fa;
+      border:1px solid rgba(156,207,216,0.45);
+      border-radius:999px;
+      padding:10px 18px;
+      font-weight:900;
+      font-size:0.98rem;
+      letter-spacing:.3px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.35);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 0.25s ease, transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+      z-index:3200;
+    }
+    #statusBar.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+    #statusBar.success{
+      background:rgba(34,197,94,0.92);
+      border-color:rgba(34,197,94,0.6);
+      color:#f0fdf4;
+      box-shadow:0 14px 32px rgba(34,197,94,0.35);
+    }
+    #statusBar.error{
+      background:rgba(239,68,68,0.9);
+      border-color:rgba(239,68,68,0.65);
+      color:#fff7f7;
+      box-shadow:0 14px 32px rgba(239,68,68,0.28);
+    }
+
+    /* Customer-facing success badge */
+    #customerSuccess{
+      position:fixed;
+      top:calc(env(safe-area-inset-top,0) + 18px);
+      left:50%;
+      transform:translateX(-50%) translateY(-14px);
+      background:linear-gradient(135deg,rgba(34,197,94,0.98),rgba(52,211,153,0.94));
+      border:1px solid rgba(34,197,94,0.75);
+      color:#f0fdf4;
+      padding:14px 22px;
+      border-radius:16px;
+      font-weight:900;
+      font-size:1.05rem;
+      letter-spacing:.4px;
+      box-shadow:0 18px 42px rgba(34,197,94,0.28),0 0 28px rgba(34,197,94,0.22);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 0.25s ease, transform 0.25s ease;
+      z-index:3300;
+      max-width:90vw;
+      text-align:center;
+    }
+    #customerSuccess.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    /* Profile editor fields */
+    .profile-help{color:var(--muted);margin-top:4px;font-size:0.98rem;}
+
+    /* spinner rotation */
+    @keyframes spin{
+      from{transform:rotate(0deg);}
+      to{transform:rotate(360deg);}
+    }
+
+    /* 🔧 Ensure client names are always visible and readable */
+    #clientList{
+      max-height:60vh;overflow-y:auto;padding-right:6px;
+      -webkit-overflow-scrolling:touch;
+    }
+    #clientList div{
+      color:var(--text) !important;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:8px 10px;
+      margin-bottom:6px;
+      font-weight:700;
+      cursor:pointer;
+      transition:background 0.2s ease,transform 0.1s ease;
+    }
+    #clientList div:hover{
+      background:rgba(235,111,146,0.25);
+      transform:translateY(-1px);
+    }
+    #clientList.locked div{
+      pointer-events:none;
+      opacity:0.65;
+    }
+
+    /* === OFFLINE MODE (Deep Navy Blue) === */
+    body.offline-mode{
+      --bg:#0f172a;
+      --card:#111827;
+      --surface:#1e293b;
+      --border:#334155;
+      --text:#f1f5f9;
+      --muted:#94a3b8;
+      --accent:#38bdf8;
+      --secondary:#64748b;
+      --ok:#22d3ee;
+    }
+
+    /* Subtle offline indicator (top of card) */
+    #offlineBanner{
+      display:none;
+      margin-bottom:12px;
+      padding:10px 14px;
+      background:#0f172a;
+      border:1px solid #1e293b;
+      color:#38bdf8;
+      font-weight:800;
+      border-radius:10px;
+      letter-spacing:.5px;
+      text-align:center;
+    }
+    body.offline-mode #offlineBanner{display:block;}
+
+    @media (max-height:820px){
+      .client-overlay{align-items:flex-start;}
+      .modal.client-modal{max-height:70vh;margin-top:12px;}
+    }
+
+    /* 🌙 SweetAlert Pulses */
+    @keyframes swalPulseSaving{
+      0%,100%{box-shadow:0 0 22px rgba(56,189,248,0.35),0 0 60px rgba(56,189,248,0.10);}
+      50%{box-shadow:0 0 36px rgba(45,212,191,0.60),0 0 80px rgba(45,212,191,0.20);}
+    }
+    @keyframes swalPulseSuccess{
+      0%,100%{box-shadow:0 0 22px rgba(34,197,94,0.45),0 0 60px rgba(34,197,94,0.15);}
+      50%{box-shadow:0 0 36px rgba(34,197,94,0.75),0 0 80px rgba(34,197,94,0.25);}
+    }
+    @keyframes swalPulseError{
+      0%,100%{box-shadow:0 0 22px rgba(239,68,68,0.45),0 0 60px rgba(239,68,68,0.15);}
+      50%{box-shadow:0 0 36px rgba(239,68,68,0.80),0 0 80px rgba(239,68,68,0.30);}
+    }
+    
+/* Hide scrollbars inside confirm modal while signing */
+body.sig-drawing .confirm-overlay .modal {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge */
+}
+
+body.sig-drawing .confirm-overlay .modal::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+body.sig-drawing {
+  overflow: hidden;              /* lock scroll */
+  overscroll-behavior: contain;  /* prevent bounce */
+}
+    
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top-row">
+        <h1>＋ Client Entry</h1>
+        <div class="top-actions">
+          <button class="history-cta" id="historyBtn" type="button" onclick="openHistory()">History</button>
+          <button class="profile-cta" id="editProfileBtn" type="button" onclick="openProfileEditor()">Edit Profile</button>
+          <button class="client-cta" id="clientBtn" type="button" onclick="openClientList()">Clients</button>
+        </div>
+      </div>
+
+      <div id="offlineBanner">⚠ Offline Mode — Local Save Enabled</div>
+
+      <div class="grid2">
+        <div>
+          <label for="log_last">Last Name</label>
+          <input id="log_last" placeholder="i.e. Doe">
+        </div>
+        <div>
+          <label for="log_first">First Name</label>
+          <input id="log_first" placeholder="i.e. Jane">
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <label for="clerk">
+            Clerk Initials
+            <span style="font-weight:900;color:#eb6f92">• required (staff)</span>
+          </label>
+          <input id="clerk" placeholder="i.e. AB" maxlength="4" required aria-required="true">
+        </div>
+        <div>
+          <label for="phone">Phone (optional)</label>
+          <input id="phone" placeholder="i.e. (209) 123-4567">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 0.9fr auto;gap:14px;align-items:end">
+        <div>
+          <label for="cash">Cash Added ($)</label>
+          <div class="cash-buttons" id="cashButtons">
+            <button type="button" class="cash-btn" data-val="5">$5</button>
+            <button type="button" class="cash-btn" data-val="10">$10</button>
+            <button type="button" class="cash-btn" data-val="15">$15</button>
+            <button type="button" class="cash-btn" data-val="20">$20</button>
+          </div>
+          <input id="cash" type="hidden" value="">
+        </div>
+        <div>
+          <label for="spent">Spent ($)</label>
+          <input id="spent" type="number" step="any" min="0" placeholder="0.00">
+        </div>
+        <div class="status-stack">
+          <div class="livebox" id="livebox">
+            <div class="row live-phone" id="live_phone_row" style="display:none">
+              Phone <b id="live_phone">—</b>
+            </div>
+            <div class="title">Live Balance</div>
+            <div class="big" id="live_new">$0.00</div>
+            <div class="row">
+              Previous <b id="live_prev">$0.00</b> •
+              Added <b id="live_add">$0.00</b> •
+              Spent <b id="live_spent">$0.00</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overrides row -->
+      <div class="override-row" style="margin-top:6px">
+        <div>
+          <label for="opt_prev_d">Previous Balance ($)</label>
+          <input id="opt_prev_d" class="readonly-field" type="number" step="any" min="0"
+                 placeholder="e.g. 30.00" autocomplete="off" readonly aria-readonly="true" tabindex="-1">
+        </div>
+        <div>
+          <label for="opt_start_d">Override Starting Balance ($)</label>
+          <input id="opt_start_d" type="number" step="any" min="0"
+                 placeholder="e.g. 0.00" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Clerk notes -->
+      <label for="notes">Clerk Notes (optional)</label>
+      <textarea id="notes" placeholder="Anything helpful for next time…"></textarea>
+
+      <div class="actions">
+        <button id="saveBtn" type="button" onclick="openConfirm()">Save / Update</button>
+<button class="ghost" type="button" onclick="clearEntry()">Clear</button>
+      </div>
+      <div id="msg" class="msg"></div>
+
+    </div>
+  </div>
+
+  <div id="statusBar" role="status" aria-live="polite"></div>
+  <div id="customerSuccess" aria-live="polite"></div>
+
+  <!-- Confirm modal (receipt popup) -->
+  <div id="confirmOverlay" class="modal-overlay confirm-overlay" style="display:none">
+    <div class="modal mini-confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <h2 id="confirmTitle" style="margin-bottom:8px">Confirm Entry</h2>
+      <div class="kvs">
+        <div class="kv-label">Name</div>              <div class="kv-value" id="c_name">—</div>
+        <div class="kv-label">Clerk</div>             <div class="kv-value" id="c_clerk">—</div>
+        <div class="kv-label">Phone</div>             <div class="kv-value" id="c_phone">N/A</div>
+        <div class="kv-label">Cash Added</div>        <div class="kv-value" id="c_added">$0.00</div>
+        <div class="kv-label">Used</div>              <div class="kv-value" id="c_used">-$0.00</div>
+        <div class="kv-label">Previous Balance</div>  <div class="kv-value prev" id="c_prev">$0.00</div>
+        <div class="kv-label">New Balance</div>       <div class="kv-value new" id="c_new">$0.00</div>
+      </div>
+
+      <!-- ✍️ Signature area -->
+      <div class="sig-wrap" aria-label="Client signature">
+        <label>Client Signature</label>
+        <div class="sig-hint">Sign clearly inside the box below</div>
+        <canvas id="sigPad" class="sig-canvas" width="420" height="140"></canvas>
+        <div class="sig-actions" role="group" aria-label="Signature actions">
+          <button class="ghost" type="button" onclick="closeConfirm()">Go Back</button>
+          <button class="ghost" type="button" id="sigClearBtn" onclick="clearSig()">Clear Signature</button>
+          <button id="confirmBtn" class="sig-submit" type="button" onclick="confirmSave()">Submit Signature</button>
+        </div>
+      </div><!-- end .sig-wrap -->
+    </div><!-- end .modal.mini-confirm -->
+  </div><!-- end #confirmOverlay -->
+
+
+  <!-- Client list modal -->
+  <div id="clientListOverlay" class="modal-overlay client-overlay" style="display:none">
+    <div class="modal client-modal" role="dialog" aria-modal="true">
+      <h2>Client List</h2>
+      <input id="clientSearch" class="client-search" placeholder="Search...">
+      <div id="clientList" class="client-list"></div>
+      <div style="text-align:right;margin-top:6px">
+        <button class="ghost" onclick="closeClientList()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="profileOverlay" class="modal-overlay" style="display:none">
+    <div class="modal profile-modal" role="dialog" aria-modal="true">
+      <h2>Edit Profile</h2>
+      <div class="profile-help">Fix spelling or phone for the current client.</div>
+      <div class="grid2" style="margin-top:8px;">
+        <div>
+          <label for="profileLast">Last Name</label>
+          <input id="profileLast" autocomplete="off" placeholder="i.e. Doe">
+        </div>
+        <div>
+          <label for="profileFirst">First Name</label>
+          <input id="profileFirst" autocomplete="off" placeholder="i.e. Jane">
+        </div>
+      </div>
+      <label for="profilePhone">Phone (optional)</label>
+      <input id="profilePhone" autocomplete="off" placeholder="(209) 123-4567">
+      <div class="actions" style="margin-top:14px;">
+        <button id="profileSaveBtn" type="button" onclick="submitProfileUpdate()">Save Profile</button>
+        <button class="ghost" type="button" onclick="closeProfileEditor()">Cancel</button>
+      </div>
+      <div class="danger-zone">
+        <h3>Delete Person</h3>
+        <p>Requires passcode — removes from all lists.</p>
+        <label for="profileDeletePassword">Passcode</label>
+        <input id="profileDeletePassword" type="password" autocomplete="off" placeholder="Enter 4-digit passcode">
+        <div class="actions" style="margin-top:12px;">
+          <button id="profileDeleteBtn" class="danger-btn" type="button" onclick="submitProfileDeletion()">Delete Person</button>
+        </div>
+      </div>
+      <div id="profileStatus" class="muted" style="min-height:22px;margin-top:2px;"></div>
+    </div>
+  </div>
+
+  <div id="historyOverlay" class="modal-overlay" style="display:none">
+    <div class="modal history-modal" role="dialog" aria-modal="true">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <h2 style="margin:0;">Recent Receipts</h2>
+        <button class="ghost" type="button" onclick="closeHistory()">Close</button>
+      </div>
+      <div class="history-body" id="historyBody">
+        <div class="muted" style="padding:6px 4px;">Loading last 5 receipts…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔔 Success chime (you can set src to your audio file) -->
+  <audio id="successChime" preload="auto" playsinline>
+    <source src="data:audio/wav;base64,UklGRkZWAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YSJWAAAAAJoFHQt0EIkVRxqcHnUixSV8KJEq+iuzLLgsCSyqKp8o8CWpItceiRrRFcAQbUQF3ghCNlErGBVkAAoWfPoejhBxYvH3wyqQOx/8IZRXVnxVI+8V8nQoRJxpoF2coA1VGyGJXx/Uo0hGtKfIjX7KZBM5LfJ1ChDmZyRX2Df55Z01pRMKjJ7gvhXsNUvCwCOZCsZmzOoAT7ylrueIrWm6uvUhRizUQzDS45tZnyvQYH4HKQ014qo4mTgIcQT0Nr7Lq8aPioZCkjdouewTkn1WRvD/i5PEm/oTJp6Jqx+DZeNnaoBdCqX5mXx1Fcf7OsEqLZJ8rJMu8OX9hPRu5jG7eKeJUJxV8wQmDyh4fAX/PniPZbni+AL8SBmaS11P3WPlhV9fjaV7LkqvevP1kKmFH7041n2q6xORInS/tjxr1JAcdHVu5ZzKI4Tb4QTA4mRVDlaO4j9eL7otQIqLhORH2AOZkBzcDHJ8R1ueVs/w+pynCo1rvxoFRq++cAeDxq7+7bykEUupZRIRRaROfNHD4BWAQaFV2MLnM+7Lu/FiQhJSG3aSIq30GIIAIDAEBxQ1Yna1QS6o/Vv3PzadRyd/5QL3C1zPzBJMq9lDbZ7XEH1u7kBb1b9HTlq6Ey2shHhn7XUGjO993F+8M1exAo9nORdShTHAeAG2dgCOhdmvuzA6w/6awDOyH5ZgbFxMmxz2OdvOsVoPcopbadJmJD8LgYn/fMSWcS5yRq/ZmMcl1sGdWzwu+OIA6i1FqEBR6zRbKCkqaPnxGACszxT3RNVeTJ9yqzPxI9CAG7TwziStUxjVbLqyZDwSjcEA1rYhBt6w2VJ6VCBuJAo2X5YoFMI0V+T14juwCrXoJE6iIBgIJBBwTxXBjgUpkbwMf7uAu84yncXAow040KLtlhfA7oQJRSMI6yBF6dG8THKU4wkAxhAgiVEcAtHdkmxUPTmBJrxwKexz3V7M9VdZcCF6VQQs65goqqgUE9wBt9b4QdRhmNFwm5LketcsSThgppCwTIhQndXn+oZKVD1YpsHbhvqvbyBh9xqkYDGYDGWsVR+ujIh2AwhhAQED" type="audio/wav">
+  </audio>
+
+  <!-- 🌙 Animated Dark SweetAlert Popup (Blue/Green variant) -->
+  <div id="swal" style="
+    position:fixed;inset:0;
+    display:none;align-items:center;justify-content:center;
+    background:rgba(15,23,42,0.72);
+    z-index:5000;transition:opacity 0.22s ease;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  ">
+    <div id="swalBox" style="
+      background:rgba(15,23,42,0.96);
+      color:#e2e8f0;
+      border-radius:20px;
+      padding:38px 42px;
+      text-align:center;
+      width:90%;max-width:360px;
+      transform:translateY(12px) scale(0.92);
+      opacity:0;
+      transition:transform 0.28s cubic-bezier(.2,.8,.2,1),
+                 opacity 0.28s ease-out;
+      box-shadow:0 22px 60px rgba(0,0,0,0.72),
+                 0 0 26px rgba(56,189,248,0.35);
+      border:1px solid rgba(148,163,184,0.35);
+    ">
+      <!-- Dynamic Icon -->
+      <div id="swalIcon" style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:64px;
+        margin-bottom:20px;
+        font-size:3.3rem;
+        color:#38bdf8;
+      "></div>
+
+      <!-- Title -->
+      <div id="swalTitle" style="
+        font-size:1.55rem;
+        font-weight:900;
+        margin-bottom:10px;
+        color:#38bdf8;
+        letter-spacing:.4px;
+      ">Status</div>
+
+      <!-- Message Text -->
+      <div id="swalMsg" style="
+        font-size:1.05rem;
+        color:#94a3b8;
+        line-height:1.5;
+      ">—</div>
+    </div>
+  </div>
+
+  <script>
+    const gid = id => document.getElementById(id);
+
+    let _chimePrimed = false;
+    let _chimeSrc = null;
+    let _audioCtx = null;
+    function getAudioCtx(){
+      if(_audioCtx) return _audioCtx;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(Ctx){
+        _audioCtx = new Ctx();
+      }
+      return _audioCtx;
+    }
+    function primeSuccessChime(){
+      const ctx = getAudioCtx();
+      if(ctx && ctx.state === 'suspended'){
+        ctx.resume().catch(() => {});
+      }
+      const a = gid('successChime');
+      if(!a) return;
+      _chimeSrc = _chimeSrc || a.currentSrc || (a.querySelector('source') || {}).src || a.src;
+      const finish = () => { _chimePrimed = true; };
+      const attempt = () => {
+        try{
+          if(a.readyState < 2 && typeof a.load === 'function'){ a.load(); }
+          a.muted = true;
+          a.playsInline = true;
+          a.crossOrigin = a.crossOrigin || 'anonymous';
+          const playPromise = a.play();
+          if(playPromise && typeof playPromise.then === 'function'){
+            playPromise.then(() => {
+              a.pause();
+              a.currentTime = 0;
+              a.muted = false;
+              finish();
+            }).catch(() => { a.muted = false; finish(); });
+          }else{
+            a.pause();
+            a.currentTime = 0;
+            a.muted = false;
+            finish();
+          }
+        }catch(e){
+          try{ a.muted = false; }catch(_){}
+          finish();
+        }
+      };
+      if(!_chimePrimed){
+        attempt();
+      }
+    }
+    ['pointerdown','touchstart','mousedown','click'].forEach(evt => {
+      window.addEventListener(evt, primeSuccessChime, { passive:true });
+    });
+
+    /* ====== Core math helpers (unchanged) ====== */
+    const MULT = 6; // $5 => +30 credits
+    const BUBBLE_FACES = new Set([0,5,10,15,20]);
+    const toFace = n => {
+      const num = Number(n||0);
+      return BUBBLE_FACES.has(num) ? num : 0;
+    };
+    const bubbleCredits = face => BUBBLE_FACES.has(face) ? face * MULT : 0;
+    const dollars = n => Number(n||0);
+    const fmt$ = n => '$' + (Number(n||0)).toFixed(2);
+
+    const _digits10 = s => String(s||'').replace(/\D+/g,'').length === 10;
+    const _phoneDigits = s => String(s||'').replace(/\D+/g,'');
+
+    function fmtPhone(raw){
+      const digits = _phoneDigits(raw);
+      if(digits.length === 10){
+        return '('+digits.slice(0,3)+') '+digits.slice(3,6)+'-'+digits.slice(6);
+      }
+      return String(raw||'').trim();
+    }
+
+    /* === OFFLINE DETECTOR (visual theme only) === */
+    function updateOfflineState(){
+      const offline = !navigator.onLine;
+      document.body.classList.toggle("offline-mode", offline);
+    }
+    window.addEventListener("online", updateOfflineState);
+    window.addEventListener("offline", updateOfflineState);
+    document.addEventListener("DOMContentLoaded", () => {
+  updateOfflineState();
+
+  // if snapshot already exists locally, allow offline reads immediately
+  const snap = getSnapshotMap();
+  if(snap && Object.keys(snap).length){
+    _offlineCacheReady = true;
+  }
+
+  autoWarmCache(); // warm from server if online
+});
+
+    /* === OFFLINE ENGINE: SNAPSHOT + QUEUE + CLIENT CACHE === */
+    const OFFLINE_KEYS = {
+      SNAPSHOT: 'fs_snapshot_v1',
+      QUEUE: 'fs_queue_v1',
+      CLIENTS: 'fs_clients_v1'
+    };
+
+    function safeJSONGet(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        if(!raw) return fallback;
+        return JSON.parse(raw);
+      }catch(e){
+        return fallback;
+      }
+    }
+    function safeJSONSet(key, value){
+      try{
+        localStorage.setItem(key, JSON.stringify(value));
+      }catch(e){}
+    }
+
+    function getOfflineClients(){
+      return safeJSONGet(OFFLINE_KEYS.CLIENTS, []);
+    }
+    function saveOfflineClients(list){
+      if(!Array.isArray(list)) return;
+      safeJSONSet(OFFLINE_KEYS.CLIENTS, list);
+    }
+
+    function clientKey(last, first){
+      return String(last||'').trim().toUpperCase() + '|' +
+             String(first||'').trim().toUpperCase();
+    }
+
+    function getSnapshotMap(){
+      return safeJSONGet(OFFLINE_KEYS.SNAPSHOT, {});
+    }
+    function setSnapshotMap(map){
+      safeJSONSet(OFFLINE_KEYS.SNAPSHOT, map);
+    }
+
+    function updateSnapshotBalance(last, first, balance, phoneOpt){
+      const map = getSnapshotMap();
+      const key = clientKey(last, first);
+      const entry = map[key] || {};
+      entry.balance = Number(balance)||0;
+      if(phoneOpt !== undefined){
+        entry.phone = phoneOpt || '';
+      }
+      entry.updated = Date.now();
+      map[key] = entry;
+      setSnapshotMap(map);
+    }
+
+    function renameSnapshotKey(oldLast, oldFirst, newLast, newFirst, phoneOpt){
+      const map = getSnapshotMap();
+      const oldKey = clientKey(oldLast, oldFirst);
+      const newKey = clientKey(newLast, newFirst);
+      if(oldKey === newKey){
+        if(map[oldKey] && phoneOpt !== undefined){
+          map[oldKey].phone = phoneOpt || '';
+          setSnapshotMap(map);
+        }
+        return;
+      }
+      const entry = map[oldKey];
+      if(entry){
+        if(phoneOpt !== undefined){ entry.phone = phoneOpt || ''; }
+        delete map[oldKey];
+        map[newKey] = entry;
+        setSnapshotMap(map);
+      }
+    }
+
+    function getSnapshotFor(last, first){
+      const map = getSnapshotMap();
+      return map[clientKey(last, first)] || null;
+    }
+
+    function getQueue(){
+      return safeJSONGet(OFFLINE_KEYS.QUEUE, []);
+    }
+    function setQueue(q){
+      safeJSONSet(OFFLINE_KEYS.QUEUE, q);
+    }
+    function enqueueTxn(item){
+      const q = getQueue();
+      q.push(item);
+      setQueue(q);
+    }
+
+    let _syncInFlight = false;
+    const SYNC_INTERVAL_MS = 60000;
+
+    function syncOfflineQueue(){
+      if(_syncInFlight) return;
+      if(!navigator.onLine) return;
+      let q = getQueue();
+      if(!q.length) return;
+
+      _syncInFlight = true;
+      const item = q[0];
+
+      google.script.run
+        .withSuccessHandler(res => {
+          if(!res || res.success === false){
+            // keep in queue, try later
+            _syncInFlight = false;
+            return;
+          }
+
+          const meta = item.meta || {};
+          const last = meta.last || '';
+          const first = meta.first || '';
+          const clerk = meta.clerk || '';
+          const phone = meta.phone || '';
+          const signature = meta.signature || '';
+
+          if(phone){
+            google.script.run
+              .withFailureHandler(()=>{})
+              .savePhoneIfChanged({ last, first, phone });
+          }
+          if(signature){
+            google.script.run
+              .withFailureHandler(()=>{})
+              .saveSignedEntry({ last, first, clerk, signature });
+          }
+
+          // Remove from queue and save
+          q = getQueue();
+          q.shift();
+          setQueue(q);
+
+          _syncInFlight = false;
+          if(q.length){
+            syncOfflineQueue();
+          }
+        })
+        .withFailureHandler(()=>{
+          _syncInFlight = false;
+        })
+        .addToFormResponses1(item.sendData);
+    }
+
+function getCacheCounts(){
+  const snap = getSnapshotMap();
+  const cached = Object.keys(snap || {}).length;
+
+  return {
+    cached: cached,
+    server: cached,   // until you explicitly track server count
+    updated: null
+  };
+}
+    setInterval(syncOfflineQueue, SYNC_INTERVAL_MS);
+    window.addEventListener('online', () => {
+      updateOfflineState();
+      syncOfflineQueue();
+    });
+
+    /* === AUTO WARM OFFLINE CACHE (runs on page load when online) === */
+function autoWarmCache(force = false){
+  if(!navigator.onLine) return;
+
+  const KEY = 'fs_lastWarm_v1';
+  const last = Number(localStorage.getItem(KEY) || 0);
+
+  const FIFTEEN_MIN = 15 * 60 * 1000;
+  if(!force && Date.now() - last < FIFTEEN_MIN) return;
+
+  localStorage.setItem(KEY, Date.now());
+
+  google.script.run
+  .withSuccessHandler(list => {
+    if(!Array.isArray(list)) return;
+
+    const snapshot = {};
+    const clients = [];
+
+    list.forEach(c => {
+      if(!c.last || !c.first) return;
+
+      const key = clientKey(c.last, c.first);
+      snapshot[key] = {
+        balance: Number(c.balance) || 0,
+        phone: c.phone || '',
+        updated: Date.now()
+      };
+
+      clients.push({ last: c.last, first: c.first });
+    });
+
+// 🔥 overwrite snapshot cache atomically
+safeJSONSet(OFFLINE_KEYS.SNAPSHOT, snapshot);
+
+saveOfflineClients(clients);
+_clientCache = clients;
+
+    // 🔄 if a client is currently selected, refresh live UI
+if(VoucherState.client){
+  const { last, first } = VoucherState.client;
+  const snap = snapshot[clientKey(last, first)];
+  if(snap){
+    VoucherState.hydrate({
+      last,
+      first,
+      balance: snap.balance,
+      phone: snap.phone || ''
+    });
+    renderLive();
+    updatePhoneDisplay({ format:true });
+  }
+}
+
+_offlineCacheReady = true;
+
+console.log(
+  '[OFFLINE CACHE WARMED]',
+  'clients:', clients.length,
+  'time:', new Date().toLocaleTimeString()
+);
+
+  })
+  .withFailureHandler(() => {
+    // silent fail — never block UI
+  })
+  .getAllClientBalances();
+}
+
+    /* === Phone display helper === */
+    function updatePhoneDisplay(opts = {}){
+      const { value, format = false } = opts;
+      const input = gid('phone');
+      if(!input) return;
+      if(value !== undefined){
+        input.value = String(value||'').trim();
+      }
+      const digits = _phoneDigits(input.value);
+      input.classList.toggle('valid-phone', digits.length === 10);
+      if(format){
+        if(digits.length === 10){
+          input.value = fmtPhone(digits);
+        }else if(!digits.length){
+          input.value = '';
+        }
+      }
+    }
+
+    /* === Canonical voucher/client state (hydrates first, then computes) === */
+    const VoucherState = {
+      ready: false,
+      loading: false,
+      client: null,
+      balance: 0,
+      phone: '',
+      setPending(last, first){
+        this.loading = true;
+        this.ready = false;
+        this.client = last && first ? { last, first } : null;
+        this.balance = 0;
+        this.phone = '';
+        _prevDisplay = 0;
+        gid('opt_prev_d').value = '';
+      },
+      hydrate({ last, first, balance = 0, phone = '' }){
+        if(!last || !first) return;
+        const key = clientKey(last, first);
+        const currentKey = this.client ? clientKey(this.client.last, this.client.first) : null;
+        this.client = { last, first };
+        this.balance = Number(balance) || 0;
+        this.phone = phone || '';
+        this.ready = true;
+        this.loading = false;
+        _prevDisplay = this.balance;
+        gid('opt_prev_d').value = this.balance.toFixed(2);
+        if(this.phone){
+          updatePhoneDisplay({ value: this.phone, format: true });
+          _lastFetchedPhone = _phoneDigits(this.phone);
+        }
+        if(currentKey && currentKey !== key){
+          // stale UI inputs must reflect canonical state
+          gid('log_last').value = last;
+          gid('log_first').value = first;
+        }
+      },
+      clear(){
+        this.ready = false;
+        this.loading = false;
+        this.client = null;
+        this.balance = 0;
+        this.phone = '';
+        _prevDisplay = 0;
+        gid('opt_prev_d').value = '';
+      }
+    };
+
+    /* === Globals === */
+    let _prevDisplay = 0;
+    let _pending = null;
+    let nameTimer = null;
+    let _lastFetchedPhone = '';
+    let _saveInFlight = false;
+    let _activeSaveToken = null;
+    let _userEditedDuringSave = false;
+    let _uiLocked = false;
+let _activeLookupToken = 0;
+
+    function setSubmittingLock(lock){
+      _uiLocked = !!lock;
+      const controls = document.querySelectorAll('input, textarea, button, select');
+      controls.forEach(el => {
+        const allowClientCTA = el.id === 'clientBtn';
+        if(allowClientCTA){
+          el.disabled = false;
+          return;
+        }
+        if(lock){
+          el.dataset.wasDisabled = el.disabled ? '1' : '0';
+          el.disabled = true;
+          el.classList.add('disabled-during-save');
+        }else{
+          el.disabled = el.dataset.wasDisabled === '1';
+          el.classList.remove('disabled-during-save');
+          delete el.dataset.wasDisabled;
+        }
+      });
+
+      const sigCanvas = gid('sigPad');
+      if(sigCanvas){
+        sigCanvas.style.pointerEvents = lock ? 'none' : 'auto';
+        sigCanvas.style.opacity = lock ? '0.6' : '1';
+      }
+
+      const clientSearchInput = gid('clientSearch');
+      if(clientSearchInput){
+        clientSearchInput.disabled = lock;
+      }
+
+      const clientListEl = gid('clientList');
+      if(clientListEl){
+        clientListEl.classList.toggle('locked', lock);
+      }
+    }
+
+    function markEditDuringSave(){
+      if(_saveInFlight){
+        _userEditedDuringSave = true;
+      }
+    }
+
+    /* ===== Glow when both names present ===== */
+    function glowByNames(){
+      const ok = gid('log_last').value !== '' && gid('log_first').value !== '';
+      gid('livebox').classList.toggle('ok', ok);
+    }
+
+    /* ===== Name lookup (debounced) ===== */
+    function scheduleNameLookup(){
+      clearTimeout(nameTimer);
+      nameTimer = setTimeout(runNameLookup, 350);
+    }
+
+    function runNameLookup(){
+  // 🔐 invalidate any previous lookups
+  const lookupToken = ++_activeLookupToken;
+
+  const last  = gid('log_last').value.trim();
+  const first = gid('log_first').value.trim();
+
+  // ===== EMPTY NAME RESET =====
+  if(!last || !first){
+    const phoneEl = gid('phone');
+    if(phoneEl && _phoneDigits(phoneEl.value) === _lastFetchedPhone){
+      phoneEl.value = '';
+    }
+    _lastFetchedPhone = '';
+    VoucherState.clear();
+    renderLive();
+    updatePhoneDisplay();
+    return;
+  }
+
+// ===== OFFLINE FAST-PATH (waits for warm) =====
+if(!navigator.onLine){
+  VoucherState.setPending(last, first);
+  VoucherState.client = { last, first };
+
+  // ⛔ snapshot not ready yet → show loading, not zero
+  if(!_offlineCacheReady){
+    VoucherState.loading = true;
+    renderLive();
+    return;
+  }
+
+  const snap = getSnapshotFor(last, first);
+  if(snap){
+    VoucherState.hydrate({
+      last,
+      first,
+      balance: snap.balance,
+      phone: snap.phone || ''
+    });
+  }else{
+    VoucherState.ready   = true;
+    VoucherState.balance = 0;
+    VoucherState.phone   = '';
+  }
+
+  VoucherState.loading = false;
+  renderLive();
+  updatePhoneDisplay({ format:true });
+  return;
+}
+
+  // ===== ONLINE PATH =====
+  VoucherState.setPending(last, first);
+  renderLive();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      // ⛔ ignore stale responses
+      if(lookupToken !== _activeLookupToken) return;
+
+      const phoneEl = gid('phone');
+      const previousFetched = _lastFetchedPhone;
+      const currentDigits = phoneEl ? _phoneDigits(phoneEl.value) : '';
+
+      if(res && !res.error){
+        VoucherState.hydrate({
+          last,
+          first,
+          balance: res.balance || 0,
+          phone: res.phone || ''
+        });
+
+        // update snapshot from server result
+        updateSnapshotBalance(last, first, VoucherState.balance, res.phone || '');
+
+        if(!res.phone && phoneEl && currentDigits === previousFetched){
+          updatePhoneDisplay({ value:'', format:true });
+        }
+      }else{
+        // fallback to snapshot if available
+        const snap = getSnapshotFor(last, first);
+        if(snap){
+          VoucherState.hydrate({
+            last,
+            first,
+            balance: snap.balance,
+            phone: snap.phone || ''
+          });
+        }else{
+          VoucherState.ready   = true;
+          VoucherState.loading = false;
+          VoucherState.balance = 0;
+          VoucherState.phone   = '';
+          if(phoneEl && currentDigits === previousFetched){
+            updatePhoneDisplay({ value:'', format:true });
+          }
+          _lastFetchedPhone = '';
+        }
+      }
+
+      renderLive();
+      updatePhoneDisplay({ format:true });
+    })
+    .withFailureHandler(() => {
+      // ⛔ ignore stale failures
+      if(lookupToken !== _activeLookupToken) return;
+
+      const snap = getSnapshotFor(last, first);
+      const phoneEl = gid('phone');
+
+      if(snap){
+        VoucherState.hydrate({
+          last,
+          first,
+          balance: snap.balance,
+          phone: snap.phone || ''
+        });
+      }else{
+        VoucherState.ready   = true;
+        VoucherState.loading = false;
+        VoucherState.balance = 0;
+        if(phoneEl && _phoneDigits(phoneEl.value) === _lastFetchedPhone){
+          updatePhoneDisplay({ value:'', format:true });
+        }
+        _lastFetchedPhone = '';
+      }
+
+      renderLive();
+      updatePhoneDisplay({ format:true });
+    })
+    .lookupClient({ last, first });
+}
+
+    /* ===== Helpers for overrides ===== */
+    function getPrevForDisplay(){
+      if(!VoucherState.ready) return 0;
+      return dollars(gid('opt_prev_d').value || _prevDisplay);
+    }
+    function getStartDisplay(){
+      if(!VoucherState.ready) return 0;
+      return dollars(gid('opt_start_d').value || _prevDisplay);
+    }
+
+    /* ===== Live balance renderer ===== */
+    function renderLive(){
+      const livePrevEl = gid('live_prev');
+      const liveAddEl = gid('live_add');
+      const liveSpentEl = gid('live_spent');
+      const liveNewEl = gid('live_new');
+      if(!VoucherState.ready){
+        if(livePrevEl) livePrevEl.textContent = '—';
+        if(liveAddEl) liveAddEl.textContent = '—';
+        if(liveSpentEl) liveSpentEl.textContent = '—';
+        if(liveNewEl) liveNewEl.textContent = VoucherState.loading ? 'Loading…' : '—';
+        const liveBox = gid('livebox');
+        if(liveBox){ liveBox.classList.remove('ok'); }
+        const phoneInput = gid('phone');
+        const livePhone = gid('live_phone');
+        const livePhoneRow = gid('live_phone_row');
+        if(phoneInput && livePhone && livePhoneRow){
+          livePhone.textContent = '—';
+          livePhoneRow.style.display = 'none';
+        }
+        glowByNames();
+        return;
+      }
+
+      const cashInput = gid('cash');
+      const rawFace = cashInput ? dollars(cashInput.value || 0) : 0;
+      const face = toFace(rawFace);
+      if(cashInput && face !== rawFace){
+        cashInput.value = face ? String(face) : '';
+      }
+      const added = bubbleCredits(face);
+      const spent = Math.max(0, dollars(gid('spent').value || 0));
+      const start = getStartDisplay();
+      const prev = getPrevForDisplay();
+      const next = start + added - spent;
+
+      gid('live_prev').textContent = fmt$(prev);
+      gid('live_add').textContent = fmt$(added);
+      gid('live_spent').textContent = fmt$(spent);
+      gid('live_new').textContent = fmt$(next);
+
+      const phoneInput = gid('phone');
+      const livePhone = gid('live_phone');
+      const livePhoneRow = gid('live_phone_row');
+      if(phoneInput && livePhone && livePhoneRow){
+        const rawPhone = phoneInput.value.trim();
+        const digits = _phoneDigits(rawPhone);
+        const display = digits.length === 10 ? fmtPhone(digits) : rawPhone;
+        livePhone.textContent = display || '—';
+        livePhoneRow.style.display = display ? '' : 'none';
+      }
+      glowByNames();
+    }
+
+    /* ===== Cash bubble selection ===== */
+    document.querySelectorAll('.cash-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        markEditDuringSave();
+
+        const isSel = btn.classList.contains('selected');
+        document.querySelectorAll('.cash-btn').forEach(b => b.classList.remove('selected'));
+
+        gid('cash').value = isSel ? '' : btn.dataset.val;
+        if(!isSel) btn.classList.add('selected');
+
+        renderLive();
+      });
+    });
+
+    /* ===== Field bindings ===== */
+    ['log_last','log_first'].forEach(id => {
+      gid(id).addEventListener('input', () => {
+        markEditDuringSave();
+        gid('spent').value = '';
+        renderLive();
+        scheduleNameLookup();
+        glowByNames();
+      });
+      gid(id).addEventListener('blur', () => {
+        scheduleNameLookup();
+        glowByNames();
+      });
+    });
+
+    ['spent','opt_prev_d','opt_start_d','phone','clerk','cash','notes'].forEach(id => {
+      const el = gid(id);
+      if(!el) return;
+      el.addEventListener('input', () => {
+        markEditDuringSave();
+        renderLive();
+      });
+    });
+
+    const phoneInput = gid('phone');
+    if(phoneInput){
+      phoneInput.addEventListener('input', () => {
+        if(_phoneDigits(phoneInput.value) !== _lastFetchedPhone){
+          _lastFetchedPhone = '';
+        }
+        updatePhoneDisplay();
+      });
+      phoneInput.addEventListener('blur', () => updatePhoneDisplay({ format:true }));
+    }
+    updatePhoneDisplay();
+
+    /* ===== Confirm modal ===== */
+    function openConfirm(){
+      const last = gid('log_last').value.trim();
+      const first = gid('log_first').value.trim();
+      const clerk = gid('clerk').value.trim();
+      const phone = gid('phone').value.trim();
+      const note = gid('notes').value.trim();
+      const faceD = toFace(dollars(gid('cash').value || 0));
+      const spentD = Math.max(0, dollars(gid('spent').value || 0));
+
+      const prevRaw = gid('opt_prev_d').value;
+      const prevDisplay = prevRaw && String(prevRaw).trim() !== ''
+        ? dollars(prevRaw)
+        : Number(VoucherState.balance || 0);
+
+      const startRaw = gid('opt_start_d').value;
+      const hasStartOverride = startRaw && String(startRaw).trim() !== '';
+      const startOverride = hasStartOverride ? dollars(startRaw) : null;
+      const startDisplay = hasStartOverride ? startOverride : prevDisplay;
+
+      const payload = {
+        last, first, clerk, phone, note,
+        faceD, spentD,
+        prevDisplay,
+        hasStartOverride, startOverride, startDisplay
+      };
+
+      const msg = gid('msg');
+      if(_saveInFlight){
+        msg.innerHTML = '<span class="accent">⏳ Stand by — current save is still processing.</span>';
+        showStatusBar('Stand by — finishing current save…','saving',1200);
+        return;
+      }
+      if(!VoucherState.ready){
+        msg.innerHTML = '<span class="accent">⏳ Loading client balance…</span>';
+        showStatusBar('Waiting for client data…','saving',1200);
+        return;
+      }
+      if(!payload.last || !payload.first){
+        msg.innerHTML = '<span class="accent">❌ Enter first &amp; last name.</span>';
+        return;
+      }
+      if(!payload.clerk){
+        msg.innerHTML = '<span class="accent">❌ Clerk initials are required for staff.</span>';
+        return;
+      }
+
+      const start = payload.startDisplay;
+      const added = bubbleCredits(payload.faceD);
+      const next = start + added - payload.spentD;
+
+      _pending = {
+        send: {
+          last: payload.last,
+          first: payload.first,
+          clerk: payload.clerk,
+          phone: payload.phone,
+          cash: String(payload.faceD),
+          spent: String(payload.spentD),
+          desiredStartD: payload.hasStartOverride ? String(payload.startOverride) : null,
+          note: payload.note || ''
+        },
+        ui: {
+          start, added,
+          spent: payload.spentD,
+          next,
+          prevForRow: payload.prevDisplay,
+          phone: payload.phone
+        }
+      };
+
+      gid('c_name').textContent  = payload.last + ', ' + payload.first;
+      gid('c_clerk').textContent = payload.clerk || '—';
+      const phoneDigits = _phoneDigits(payload.phone); gid('c_phone').textContent = phoneDigits.length === 10 ? fmtPhone(phoneDigits) : (payload.phone || 'N/A');
+      gid('c_added').textContent = fmt$(_pending.ui.added);
+      gid('c_used').textContent =
+  _pending.ui.spent > 0 ? ('-' + fmt$(_pending.ui.spent)) : fmt$(0);
+      gid('c_prev').textContent  = fmt$(_pending.ui.prevForRow);
+      gid('c_new').textContent   = fmt$(_pending.ui.next);
+
+      const co = gid('confirmOverlay');
+      co.style.display = 'flex';
+      requestAnimationFrame(() => co.classList.add('show'));
+    }
+
+    function closeConfirm(){
+      const co = gid('confirmOverlay');
+      co.classList.remove('show');
+      clearSig();
+      setTimeout(() => {
+        co.style.display = 'none';
+      }, 250);
+    }
+
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if(profileOverlay && profileOverlay.classList.contains('show')) return closeProfileEditor();
+  if(historyOverlay && historyOverlay.classList.contains('show')) return closeHistory();
+  if(isClientListOpen()) return closeClientList();
+  const co = gid('confirmOverlay');
+  if(co && co.classList.contains('show')) return closeConfirm();
+});
+
+    /* ===== Clear main form ===== */
+    function clearEntry(){
+      ['clerk','cash','spent','log_last','log_first','opt_prev_d','opt_start_d','phone','notes']
+        .forEach(id => {
+          const el = gid(id);
+          if(el) el.value = '';
+        });
+      document.querySelectorAll('.cash-btn.selected')
+        .forEach(b => b.classList.remove('selected'));
+      VoucherState.clear();
+      _lastFetchedPhone = '';
+      _pending = null;
+      renderLive();
+      updatePhoneDisplay();
+      gid('msg').textContent = '';
+    }
+
+    /* ===== CLIENT LIST POPUP (with offline cache) ===== */
+    const clientOverlay = gid('clientListOverlay');
+    const clientSearch = gid('clientSearch');
+    const clientList = gid('clientList');
+    const historyOverlay = gid('historyOverlay');
+    const historyBody = gid('historyBody');
+
+    let _clientCache = getOfflineClients(); // start from saved offline cache
+    let _clientFetchInFlight = false;
+    let _historyFetchInFlight = false;
+
+    function isClientListOpen(){
+      return clientOverlay && clientOverlay.style.display === 'flex';
+    }
+
+    function applyClientFilter(term){
+      if(!clientList) return;
+      const needle = String(term||'').toLowerCase();
+      [...clientList.children].forEach(node => {
+        const text = node.getAttribute('data-name') || node.textContent || '';
+        node.style.display = !needle || text.toLowerCase().includes(needle) ? '' : 'none';
+      });
+    }
+
+    function resetClientSearch(){
+      if(clientSearch) clientSearch.value = '';
+      applyClientFilter('');
+    }
+
+    function buildClientList(list){
+      if(!clientList) return;
+      clientList.innerHTML = '';
+
+      if(!Array.isArray(list) || !list.length){
+        const div = document.createElement('div');
+        div.textContent = 'Offline: no clients saved on this device yet.';
+        div.className = 'muted';
+        div.style.padding = '8px 10px';
+        clientList.appendChild(div);
+        return;
+      }
+
+      list.forEach(c => {
+        const label = c.last + ', ' + c.first;
+        const div = document.createElement('div');
+        div.textContent = label;
+        div.setAttribute('data-name', label);
+        div.onclick = () => {
+          if(_uiLocked){
+            showStatusBar('Saving… please wait','saving',1400);
+            return;
+          }
+          gid('log_last').value = c.last;
+          gid('log_first').value = c.first;
+
+          // Smart Safe Mode — spent resets on client select
+          gid('spent').value = '';
+
+          // 💨 instant local snapshot (so balance feels fast)
+          const snap = getSnapshotFor(c.last, c.first);
+          if(snap){
+            VoucherState.hydrate({ last:c.last, first:c.first, balance: snap.balance, phone: snap.phone || '' });
+            renderLive();
+          }else{
+            VoucherState.setPending(c.last, c.first);
+            renderLive();
+          }
+
+          closeClientList();
+          scheduleNameLookup();
+          glowByNames();
+        };
+        clientList.appendChild(div);
+      });
+
+      applyClientFilter(clientSearch ? clientSearch.value : '');
+    }
+
+    function openClientList(){
+      if(!clientOverlay) return;
+
+      clientOverlay.style.display = 'flex';
+      requestAnimationFrame(() => clientOverlay.classList.add('show'));
+
+      document.body.dataset.prevOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+
+      resetClientSearch();
+      setTimeout(() => {
+        if(clientSearch && !clientSearch.disabled){
+          clientSearch.focus({ preventScroll:true });
+          clientSearch.select();
+        }
+      }, 120);
+
+      // ensure we have something from offline cache first
+      const cached = getOfflineClients();
+      if(cached.length && !_clientCache.length){
+        _clientCache = cached.slice().sort((a,b) => {
+          const last = a.last.localeCompare(b.last);
+          return last !== 0 ? last : a.first.localeCompare(b.first);
+        });
+      }
+
+      if(_clientCache.length){
+        buildClientList(_clientCache);
+      }else if(clientList){
+        clientList.innerHTML = '<div class="muted" style="padding:8px 10px;">Loading clients…</div>';
+      }
+
+      // If offline, don't call server — rely on cache
+      if(!navigator.onLine){
+        return;
+      }
+
+      if(_clientFetchInFlight) return;
+      _clientFetchInFlight = true;
+
+      google.script.run
+        .withSuccessHandler(list => {
+          _clientFetchInFlight = false;
+          if(Array.isArray(list) && list.length){
+            list.sort((a,b) => {
+              const last = String(a.last||'').localeCompare(String(b.last||''));
+              if(last !== 0) return last;
+              return String(a.first||'').localeCompare(String(b.first||''));
+            });
+            _clientCache = list;
+            saveOfflineClients(_clientCache);
+            buildClientList(_clientCache);
+          }else{
+            // no server results — fall back to whatever cache we have
+            _clientCache = getOfflineClients();
+            buildClientList(_clientCache);
+          }
+        })
+        .withFailureHandler(() => {
+          _clientFetchInFlight = false;
+          // On error, show offline cache (never blank)
+          _clientCache = getOfflineClients();
+          buildClientList(_clientCache);
+        })
+        .getAllClients();
+    }
+
+    function closeClientList(){
+      if(!clientOverlay) return;
+      clientOverlay.classList.remove('show');
+      resetClientSearch();
+      setTimeout(() => {
+        if(!clientOverlay.classList.contains('show')){
+          clientOverlay.style.display = 'none';
+          document.body.style.overflow = document.body.dataset.prevOverflow || '';
+        }
+      }, 250);
+    }
+
+    if(clientSearch){
+      clientSearch.addEventListener('input', e => applyClientFilter(e.target.value));
+    }
+    if(clientOverlay){
+      clientOverlay.addEventListener('click', e => {
+        if(e.target === clientOverlay) closeClientList();
+      });
+    }
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Escape'){
+        if(isClientListOpen()) closeClientList();
+        if(historyOverlay && historyOverlay.classList.contains('show')) closeHistory();
+      }
+    });
+
+    /* === History popout === */
+    function openHistory(){
+      if(!historyOverlay) return;
+      historyOverlay.style.display = 'flex';
+      requestAnimationFrame(() => historyOverlay.classList.add('show'));
+      loadHistory();
+    }
+
+    function closeHistory(){
+      if(!historyOverlay) return;
+      historyOverlay.classList.remove('show');
+      setTimeout(() => {
+        if(!historyOverlay.classList.contains('show')){
+          historyOverlay.style.display = 'none';
+        }
+      }, 220);
+    }
+
+    if(historyOverlay){
+      historyOverlay.addEventListener('click', e => {
+        if(e.target === historyOverlay) closeHistory();
+      });
+    }
+
+    function loadHistory(){
+      if(!historyBody) return;
+      if(_historyFetchInFlight) return;
+      _historyFetchInFlight = true;
+      historyBody.innerHTML = '<div class="muted" style="padding:6px 4px;">Loading last 5 receipts…</div>';
+
+      google.script.run
+        .withSuccessHandler(renderHistory)
+        .withFailureHandler(() => {
+          _historyFetchInFlight = false;
+          historyBody.innerHTML = '<div class="muted" style="padding:6px 4px;">Unable to load history right now.</div>';
+        })
+        .getRecentReceipts(5);
+    }
+
+    const HISTORY_BUBBLE_FACES = new Set([5,10,15,20]);
+    function historyBubbleLabel(raw, numeric){
+      const cleaned = String(raw || '').trim();
+      const num = Number(numeric);
+      if(Number.isFinite(num) && HISTORY_BUBBLE_FACES.has(num)){
+        return fmt$(num);
+      }
+      if(cleaned){
+        const digits = Number(cleaned.replace(/[^0-9.\-]+/g,''));
+        if(Number.isFinite(digits) && HISTORY_BUBBLE_FACES.has(digits)){
+          return fmt$(digits);
+        }
+        const normalized = cleaned.replace(/[$+\s]/g,'').replace(/[–—]/g,'-');
+        const m = normalized.match(/^(\d{1,2})-(\d{1,2})$/);
+        if(m){
+          const a = Number(m[1]);
+          const b = Number(m[2]);
+          if(HISTORY_BUBBLE_FACES.has(a) && HISTORY_BUBBLE_FACES.has(b)){
+            return `$${a}-${b}`;
+          }
+        }
+      }
+      return '';
+    }
+
+    function historyBubbleText(item){
+      const bubbleLabel = historyBubbleLabel(item.bubbleLabel || item.cashDisplay, item.cash);
+      const earned = Number(item.earned || 0);
+      const bubblePrefix = bubbleLabel && !/^[-+]/.test(bubbleLabel) ? '+' : '';
+      if(bubbleLabel){
+        if(earned > 0){
+          return `Bubble ${bubblePrefix}${bubbleLabel} → +${fmt$(earned)}`;
+        }
+        return `Bubble ${bubblePrefix}${bubbleLabel}`;
+      }
+      if(earned > 0){
+        const faceFromEarned = earned % MULT === 0 ? earned / MULT : null;
+        const faceLabel = faceFromEarned && HISTORY_BUBBLE_FACES.has(faceFromEarned) ? fmt$(faceFromEarned) : '';
+        const faceText = faceLabel ? ` (face ${faceLabel})` : '';
+        return `Bubble +${fmt$(earned)}${faceText}`;
+      }
+      return '';
+    }
+
+    function renderHistory(res){
+      _historyFetchInFlight = false;
+      if(!historyBody) return;
+      const items = res && Array.isArray(res.items) ? res.items : [];
+      if(!items.length){
+        historyBody.innerHTML = '<div class="muted" style="padding:6px 4px;">No receipts yet.</div>';
+        return;
+      }
+
+      const wrap = document.createElement('div');
+      wrap.className = 'history-list';
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'receipt-card';
+        const name = (item.last ? item.last + ', ' : '') + (item.first || '');
+        const balanceAfter = item.after != null ? fmt$(Number(item.after) || 0) : '—';
+        const balanceBefore = item.before != null ? fmt$(Number(item.before) || 0) : '—';
+        const bubbleText = historyBubbleText(item);
+        card.innerHTML = `
+          <div class="row">
+            <div class="who">${name || '—'}</div>
+            <div class="when">${item.when || ''}</div>
+          </div>
+          <div class="kv">
+            <span class="tag before">Before ${balanceBefore}</span>
+            <span class="tag after">After ${balanceAfter}</span>
+            <span class="tag spent">Spent ${fmt$(item.spent || 0)}</span>
+            ${bubbleText ? `<span class="tag bubble">${bubbleText}</span>` : ''}
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
+
+      historyBody.innerHTML = '';
+      historyBody.appendChild(wrap);
+    }
+
+    /* === Profile editor === */
+    const profileOverlay = gid('profileOverlay');
+    const profileLast = gid('profileLast');
+    const profileFirst = gid('profileFirst');
+    const profilePhone = gid('profilePhone');
+    const profileStatus = gid('profileStatus');
+    const profileDeletePassword = gid('profileDeletePassword');
+    const profileDeleteBtn = gid('profileDeleteBtn');
+    let _profileSaving = false;
+    let _profileDeleting = false;
+
+    function setProfileSaving(flag, message){
+      _profileSaving = !!flag;
+      [profileLast, profileFirst, profilePhone, gid('profileSaveBtn'), profileDeletePassword, profileDeleteBtn]
+        .forEach(el => {
+          if(!el) return;
+          el.disabled = !!flag;
+          el.classList.toggle('disabled-during-save', !!flag);
+        });
+      if(profileStatus){ profileStatus.textContent = flag ? (message || 'Saving…') : ''; }
+    }
+
+    function openProfileEditor(){
+      if(_uiLocked){
+        showStatusBar('Saving… please wait','saving',1400);
+        return;
+      }
+      const last = gid('log_last').value.trim();
+      const first = gid('log_first').value.trim();
+      const phoneVal = gid('phone').value.trim();
+      if(!last || !first){
+        showStatusBar('Select a client first','error',1800);
+        return;
+      }
+      if(profileLast) profileLast.value = last;
+      if(profileFirst) profileFirst.value = first;
+      if(profilePhone) profilePhone.value = phoneVal;
+      if(profileDeletePassword) profileDeletePassword.value = '';
+      if(profileStatus) profileStatus.textContent = '';
+      if(profileOverlay){
+        profileOverlay.style.display = 'flex';
+        requestAnimationFrame(() => profileOverlay.classList.add('show'));
+      }
+      setTimeout(() => { if(profileLast){ profileLast.focus({ preventScroll:true }); profileLast.select(); } }, 120);
+    }
+
+    function closeProfileEditor(){
+      if(!profileOverlay) return;
+      profileOverlay.classList.remove('show');
+      setTimeout(() => {
+        if(!profileOverlay.classList.contains('show')){
+          profileOverlay.style.display = 'none';
+        }
+      }, 240);
+    }
+    if(profileOverlay){
+      profileOverlay.addEventListener('click', e => {
+        if(e.target === profileOverlay) closeProfileEditor();
+      });
+    }
+
+    function submitProfileUpdate(){
+      if(_profileSaving) return;
+      const currentLast = gid('log_last').value.trim();
+      const currentFirst = gid('log_first').value.trim();
+      if(!currentLast || !currentFirst){
+        showStatusBar('Add a client name first','error',1800);
+        return;
+      }
+
+      const newLast = profileLast ? profileLast.value.trim() : currentLast;
+      const newFirst = profileFirst ? profileFirst.value.trim() : currentFirst;
+      const newPhone = profilePhone ? profilePhone.value.trim() : '';
+
+      setProfileSaving(true, 'Saving…');
+      google.script.run
+        .withSuccessHandler(res => {
+          setProfileSaving(false);
+          if(!res || res.ok === false){
+            const msg = (res && res.msg) || 'Could not update profile.';
+            if(profileStatus) profileStatus.textContent = msg;
+            showStatusBar(msg, 'error', 2200);
+            return;
+          }
+          const finalLast = res.last || newLast || currentLast;
+          const finalFirst = res.first || newFirst || currentFirst;
+          const finalPhone = res.phone || newPhone || '';
+
+          gid('log_last').value = finalLast;
+          gid('log_first').value = finalFirst;
+          updatePhoneDisplay({ value: finalPhone, format:true });
+          _lastFetchedPhone = _phoneDigits(finalPhone);
+
+          renameSnapshotKey(currentLast, currentFirst, finalLast, finalFirst, finalPhone);
+          updateClientCacheName(currentLast, currentFirst, finalLast, finalFirst);
+          ensureClientInCache(finalLast, finalFirst);
+          glowByNames();
+
+          if(profileStatus) profileStatus.textContent = 'Profile updated.';
+          showStatusBar('Profile updated', 'success', 2000);
+          closeProfileEditor();
+        })
+        .withFailureHandler(() => {
+          setProfileSaving(false);
+          const msg = 'Profile update failed.';
+          if(profileStatus) profileStatus.textContent = msg;
+          showStatusBar(msg, 'error', 2200);
+        })
+        .updateClientProfile({
+          last: currentLast,
+          first: currentFirst,
+          newLast: newLast,
+          newFirst: newFirst,
+          phone: newPhone
+        });
+    }
+
+    function submitProfileDeletion(){
+      if(_profileSaving || _profileDeleting || _uiLocked) return;
+      const currentLast = gid('log_last').value.trim();
+      const currentFirst = gid('log_first').value.trim();
+      if(!currentLast || !currentFirst){
+        showStatusBar('Select a client first', 'error', 1800);
+        return;
+      }
+
+      const pass = profileDeletePassword ? profileDeletePassword.value.trim() : '';
+      if(pass !== '1944'){
+        if(profileStatus) profileStatus.textContent = 'Incorrect passcode.';
+        showStatusBar('Incorrect passcode', 'error', 2000);
+        return;
+      }
+
+      _profileDeleting = true;
+      setProfileSaving(true, 'Deleting…');
+
+      google.script.run
+        .withSuccessHandler(res => {
+          _profileDeleting = false;
+          setProfileSaving(false);
+          if(profileDeletePassword) profileDeletePassword.value = '';
+
+          if(!res || res.ok === false){
+            const msg = (res && res.msg) || 'Delete failed.';
+            if(profileStatus) profileStatus.textContent = msg;
+            showStatusBar(msg, 'error', 2200);
+            return;
+          }
+
+          if(!res.removed){
+            const msg = 'No matching records found.';
+            if(profileStatus) profileStatus.textContent = msg;
+            showStatusBar(msg, 'error', 2200);
+            return;
+          }
+
+          removeClientLocally(currentLast, currentFirst);
+          clearEntry();
+          closeProfileEditor();
+          if(profileStatus) profileStatus.textContent = 'Person deleted.';
+          showStatusBar('Person deleted', 'success', 2400);
+        })
+        .withFailureHandler(() => {
+          _profileDeleting = false;
+          setProfileSaving(false);
+          if(profileDeletePassword) profileDeletePassword.value = '';
+          const msg = 'Delete failed.';
+          if(profileStatus) profileStatus.textContent = msg;
+          showStatusBar(msg, 'error', 2200);
+        })
+        .removePersonWithPassword({
+          last: currentLast,
+          first: currentFirst,
+          password: pass
+        });
+    }
+
+    /* === Ensure new clients are always added into cache (even offline) === */
+    function ensureClientInCache(last, first){
+      const l = String(last||'').trim();
+      const f = String(first||'').trim();
+      if(!l || !f) return;
+
+      const key = (l + '|' + f).toUpperCase();
+      const existing = getOfflineClients();
+      if(existing.some(c => (String(c.last||'').trim() + '|' + String(c.first||'').trim()).toUpperCase() === key)){
+        _clientCache = existing;
+        return;
+      }
+
+      const updated = existing.concat([{ last:l, first:f }]);
+      updated.sort((a,b) => {
+        const lastCmp = a.last.localeCompare(b.last);
+        return lastCmp !== 0 ? lastCmp : a.first.localeCompare(b.first);
+      });
+      saveOfflineClients(updated);
+      _clientCache = updated;
+    }
+
+    function updateClientCacheName(oldLast, oldFirst, newLast, newFirst){
+      const updated = [];
+      const seen = new Set();
+      const target = clientKey(oldLast, oldFirst);
+
+      getOfflineClients().forEach(c => {
+        let l = c.last, f = c.first;
+        if(clientKey(l, f) === target){
+          l = newLast; f = newFirst;
+        }
+        const key = clientKey(l, f);
+        if(seen.has(key)) return;
+        seen.add(key);
+        updated.push({ last:l, first:f });
+      });
+
+      const newKey = clientKey(newLast, newFirst);
+      if(!seen.has(newKey)){
+        updated.push({ last:newLast, first:newFirst });
+      }
+
+      updated.sort((a,b) => {
+        const lastCmp = a.last.localeCompare(b.last);
+        return lastCmp !== 0 ? lastCmp : a.first.localeCompare(b.first);
+      });
+
+      saveOfflineClients(updated);
+      _clientCache = updated;
+      if(isClientListOpen()){
+        buildClientList(_clientCache);
+      }
+    }
+
+    function removeClientLocally(last, first){
+      const target = clientKey(last, first);
+      const filtered = getOfflineClients().filter(c => clientKey(c.last, c.first) !== target);
+      saveOfflineClients(filtered);
+      _clientCache = filtered;
+      if(isClientListOpen()){
+        buildClientList(_clientCache);
+      }
+
+      const map = getSnapshotMap();
+      if(map[target]){
+        delete map[target];
+        setSnapshotMap(map);
+      }
+    }
+
+    /* ===== Graceful Signature Pad ===== */
+
+let lastTime = 0;
+let lastWidth = 2.4;
+let sigPad = null;
+let sigCtx = null;
+let drawing = false;
+let lastPoint = null;
+let sigDirty = false;
+let _sigBound = false;
+
+function resizeSigCanvas() {
+  if (!sigPad || !sigCtx) return;
+
+  const ratio = window.devicePixelRatio || 1;
+  const rect = sigPad.getBoundingClientRect();
+
+  // match drawing buffer to displayed size * DPR (retina crisp)
+  sigPad.width = Math.max(1, Math.floor(rect.width * ratio));
+  sigPad.height = Math.max(1, Math.floor(rect.height * ratio));
+
+  // draw in CSS pixels
+  sigCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  sigCtx.strokeStyle = "#000";
+  sigCtx.lineWidth = 2.4;
+  sigCtx.lineCap = "round";
+  sigCtx.lineJoin = "round";
+}
+
+function getPoint(e) {
+  const r = sigPad.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function smoothSegment(p1, p2) {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const now = Date.now();
+  const dt = Math.max(1, now - (lastTime || now));
+
+  // velocity → thinner when fast, thicker when slow
+  const velocity = dist / dt;
+  const targetWidth = Math.max(1.6, Math.min(3.2, 3.2 - velocity * 1.8));
+
+  sigCtx.lineWidth = lastWidth = lastWidth * 0.7 + targetWidth * 0.3;
+  lastTime = now;
+
+  const midX = (p1.x + p2.x) / 2;
+  const midY = (p1.y + p2.y) / 2;
+  sigCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+}
+
+function onPointerDown(e) {
+  // only primary pointer (prevents multi-touch weirdness)
+  if (e.isPrimary === false) return;
+
+  e.preventDefault();
+  drawing = true;
+  sigDirty = true;
+  document.body.classList.add("sig-drawing");
+
+lastTime = Date.now();
+lastWidth = 2.4;
+  lastPoint = getPoint(e);
+  sigCtx.beginPath();
+  sigCtx.moveTo(lastPoint.x, lastPoint.y);
+
+  // capture pointer so stroke doesn't break if finger leaves canvas
+  try { sigPad.setPointerCapture(e.pointerId); } catch (_) {}
+}
+
+function onPointerMove(e) {
+  if (!drawing) return;
+  if (e.isPrimary === false) return;
+
+  e.preventDefault();
+  const p = getPoint(e);
+  smoothSegment(lastPoint, p);
+  sigCtx.stroke();
+  lastPoint = p;
+}
+
+function onPointerUp(e) {
+  if (e.isPrimary === false) return;
+
+  drawing = false;
+  lastPoint = null;
+  document.body.classList.remove("sig-drawing");
+
+  try { sigPad.releasePointerCapture(e.pointerId); } catch (_) {}
+}
+
+function clearSig() {
+  if (!sigCtx || !sigPad) return;
+  sigCtx.clearRect(0, 0, sigPad.width, sigPad.height);
+  drawing = false;
+  lastPoint = null;
+  sigDirty = false;
+  document.body.classList.remove("sig-drawing");
+}
+
+function getSigData() {
+  return (sigPad && sigDirty) ? sigPad.toDataURL("image/png") : "";
+}
+
+function prepareSigPad() {
+  sigPad = document.getElementById("sigPad");
+  if (!sigPad) return;
+
+  sigCtx = sigPad.getContext("2d");
+  resizeSigCanvas();
+
+  if (!_sigBound) {
+    sigPad.addEventListener("pointerdown", onPointerDown);
+    sigPad.addEventListener("pointermove", onPointerMove);
+    sigPad.addEventListener("pointerup", onPointerUp);
+    sigPad.addEventListener("pointercancel", onPointerUp);
+    _sigBound = true;
+  }
+
+  clearSig();
+}
+
+// Re-wrap openConfirm to also init sig pad
+const oldOpenConfirm = openConfirm;
+openConfirm = function () {
+  oldOpenConfirm();
+  setTimeout(prepareSigPad, 120);
+};
+
+// keep it crisp if device rotates / resizes while modal open
+window.addEventListener("resize", () => {
+  const co = document.getElementById("confirmOverlay");
+  if (co && co.classList.contains("show")) {
+    // preserve image before resize
+    const img = sigDirty ? sigPad.toDataURL("image/png") : "";
+    resizeSigCanvas();
+    if (img) {
+      const im = new Image();
+      im.onload = () => sigCtx.drawImage(im, 0, 0, sigPad.getBoundingClientRect().width, sigPad.getBoundingClientRect().height);
+      im.src = img;
+    }
+  }
+});
+
+window.addEventListener('online', () => {
+  updateOfflineState();
+
+  // keep using existing snapshot while warming
+  setTimeout(() => {
+    autoWarmCache(true); // refresh in background
+  }, 1500);
+});
+
+    /* === Status bar helpers === */
+    let statusTimer = null;
+    let statusDelayTimer = null;
+    let customerSuccessTimer = null;
+    function showStatusBar(text, tone = 'saving', timeout = 0){
+      const bar = gid('statusBar');
+      if(!bar) return;
+      bar.textContent = text || '';
+      bar.classList.remove('success','error');
+      if(tone === 'success') bar.classList.add('success');
+      else if(tone === 'error') bar.classList.add('error');
+      bar.classList.add('show');
+      if(statusTimer) clearTimeout(statusTimer);
+      if(timeout){
+        statusTimer = setTimeout(hideStatusBar, timeout);
+      }
+    }
+    function hideStatusBar(){
+      const bar = gid('statusBar');
+      if(!bar) return;
+      bar.classList.remove('show','success','error');
+    }
+    function beginSaveStatus(){
+      showStatusBar('Saving…','saving');
+      if(statusDelayTimer) clearTimeout(statusDelayTimer);
+      statusDelayTimer = setTimeout(() => showStatusBar('Still processing…','saving'), 900);
+    }
+    function finishSaveStatus(text, tone = 'success', timeout = 10000){
+      if(statusDelayTimer) clearTimeout(statusDelayTimer);
+      showStatusBar(text, tone, timeout);
+    }
+    function showCustomerSuccess(text, duration = 10000){
+      const badge = gid('customerSuccess');
+      if(!badge) return;
+      badge.textContent = text || '✅ Success!';
+      badge.classList.add('show');
+      if(customerSuccessTimer) clearTimeout(customerSuccessTimer);
+      customerSuccessTimer = setTimeout(() => badge.classList.remove('show'), duration);
+    }
+
+    /* === Success chime === */
+    let _lastChimeTime = 0;
+    function playSuccessChime(options){
+      const opts = options || {};
+      const skipIfRecent = !!opts.skipIfRecent;
+      const now = Date.now();
+      if(skipIfRecent && (now - _lastChimeTime) < 900){ return Promise.resolve(); }
+
+      const a = gid('successChime');
+      const src = _chimeSrc || (a ? (a.currentSrc || (a.querySelector('source') || {}).src || a.src) : '');
+
+      const markPlayed = () => { _lastChimeTime = Date.now(); };
+
+      const playOscillator = () => {
+        const ctx = getAudioCtx();
+        if(!ctx) return Promise.reject();
+        const resumePromise = ctx.state === 'suspended' ? ctx.resume().catch(() => {}) : Promise.resolve();
+        return resumePromise.then(() => new Promise((resolve, reject) => {
+          try{
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const now = ctx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, now);
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.55);
+            osc.onended = resolve;
+          }catch(err){
+            reject(err);
+          }
+        }));
+      };
+
+      const playTagOrFresh = () => {
+        const playTarget = (el) => {
+          if(!el) return Promise.reject();
+          try{
+            if(el.readyState < 2 && typeof el.load === 'function'){ el.load(); }
+            if(typeof el.pause === 'function') el.pause();
+            el.currentTime = 0;
+            const res = el.play();
+            if(res && typeof res.catch === 'function') return res;
+            return Promise.resolve();
+          }catch(err){
+            return Promise.reject(err);
+          }
+        };
+        const retryOnGesture = () => {
+          const rebound = () => {
+            playTarget(a).catch(() => {
+              if(!src) return;
+              const fresh = new Audio(src);
+              fresh.preload = 'auto';
+              fresh.playsInline = true;
+              fresh.crossOrigin = 'anonymous';
+              playTarget(fresh).catch(() => {});
+            });
+          };
+          ['pointerdown','touchstart','mousedown','click'].forEach(evt => {
+            window.addEventListener(evt, () => rebound(), { once:true, capture:true });
+          });
+        };
+        try{
+          if(!_chimePrimed){ primeSuccessChime(); }
+          return playTarget(a || new Audio(src)).catch(() => {
+            if(src){
+              const fresh = new Audio(src);
+              fresh.preload = 'auto';
+              fresh.playsInline = true;
+              fresh.crossOrigin = 'anonymous';
+              return playTarget(fresh).catch(() => retryOnGesture());
+            }
+            retryOnGesture();
+            return Promise.reject();
+          });
+        }catch(e){ retryOnGesture(); return Promise.reject(); }
+      };
+
+      if(!_chimePrimed){ primeSuccessChime(); }
+      return playOscillator()
+        .then(() => { _chimePrimed = true; markPlayed(); })
+        .catch(() => playTagOrFresh().then(markPlayed).catch(() => {}));
+    }
+
+    function finalizeSaveCleanup(saveToken, opts = {}){
+      const { allowClearForm = true } = opts;
+      const isCurrent = saveToken && saveToken === _activeSaveToken;
+      const shouldClear = allowClearForm && isCurrent && !_userEditedDuringSave;
+
+      _saveInFlight = false;
+      _activeSaveToken = null;
+      _pending = null;
+      setSubmittingLock(false);
+
+      if(shouldClear){
+        clearEntry();
+        gid('log_last').focus();
+      }
+
+      clearSig();
+      _userEditedDuringSave = false;
+    }
+
+    /* ===== FINAL COMBINED SAVE (Data + Signature + Offline Queue) ===== */
+    function confirmSave(){
+      if(!_pending){
+        closeConfirm();
+        return;
+      }
+
+      if(_saveInFlight){
+        showStatusBar('Stand by — finishing current save…','saving',1200);
+        return;
+      }
+
+      primeSuccessChime();
+
+      _userEditedDuringSave = false;
+      const saveToken = Date.now();
+      _activeSaveToken = saveToken;
+
+      const last = gid('log_last').value.trim();
+      const first = gid('log_first').value.trim();
+      const clerk = gid('clerk').value.trim();
+      const phone = gid('phone').value.trim();
+      const sigData = getSigData();
+      const hasSignature = !!sigData;
+
+      showCustomerSuccess('✅ Success! Submitting…');
+      playSuccessChime();
+
+      closeConfirm();
+
+      _saveInFlight = true;
+      setSubmittingLock(true);
+      beginSaveStatus();
+
+      // Make sure this client exists in the offline list right away
+      ensureClientInCache(last, first);
+
+      const baseSendData = {
+        ..._pending.send,
+        cash: String(toFace(Number(_pending.send.cash))),
+        spent: String(Math.max(0, Number(_pending.send.spent))),
+        signature: sigData
+      };
+
+      const meta = {
+        last,
+        first,
+        clerk,
+        phone,
+        signature: sigData,
+        ui: _pending.ui || {},
+        created: Date.now()
+      };
+
+      const offlineItem = {
+        sendData: baseSendData,
+        meta
+      };
+
+      const isOffline = !navigator.onLine;
+
+      // If offline: store and update snapshot immediately
+      if(isOffline){
+        enqueueTxn(offlineItem);
+        updateSnapshotBalance(last, first, (_pending.ui && _pending.ui.next) || 0, phone || '');
+        finishSaveStatus('Saved offline — will sync when online','success',10000);
+        showCustomerSuccess('✅ Success — Saved (will sync when online)');
+        playSuccessChime({ skipIfRecent:true });
+        finalizeSaveCleanup(saveToken);
+        return;
+      }
+
+      // Online path
+
+      const doSaveTxn = () => {
+        google.script.run
+          .withSuccessHandler(res => {
+            if(!res || res.success === false){
+              // Failed online — fall back to offline queue
+              enqueueTxn(offlineItem);
+              updateSnapshotBalance(last, first, (_pending.ui && _pending.ui.next) || 0, phone || '');
+              finishSaveStatus('Saved offline — server unavailable','error',2600);
+              playSuccessChime({ skipIfRecent:true });
+              finalizeSaveCleanup(saveToken);
+              return;
+            }
+
+            // On success, still update snapshot from live result
+            updateSnapshotBalance(last, first, (_pending.ui && _pending.ui.next) || 0, phone || '');
+
+            if(hasSignature){
+              google.script.run
+                .withFailureHandler(() => {})
+                .saveSignedEntry({ last, first, clerk, signature: sigData });
+            }
+
+            if(phone){
+              google.script.run
+                .withFailureHandler(() => {})
+                .savePhoneIfChanged({ last, first, phone });
+            }
+
+            const successMsg = hasSignature ? '✅ Success — Signature Saved' : '✅ Success!';
+            finishSaveStatus(successMsg,'success',10000);
+            showCustomerSuccess(successMsg);
+            playSuccessChime({ skipIfRecent:true });
+            finalizeSaveCleanup(saveToken);
+          })
+          .withFailureHandler(() => {
+            // On error, queue entry locally
+            enqueueTxn(offlineItem);
+            updateSnapshotBalance(last, first, (_pending.ui && _pending.ui.next) || 0, phone || '');
+            finishSaveStatus('Saved offline — could not reach server','error',2600);
+            showCustomerSuccess('✅ Saved locally — will sync when online');
+            playSuccessChime({ skipIfRecent:true });
+            finalizeSaveCleanup(saveToken);
+          })
+          .addToFormResponses1(baseSendData);
+      };
+
+      // Save phone first if present (online only)
+      if(phone){
+        const normalizedPhone = phone;
+        google.script.run
+          .withSuccessHandler(() => doSaveTxn())
+          .withFailureHandler(() => doSaveTxn())
+          .savePhoneIfChanged({ last, first, phone: normalizedPhone });
+      }else{
+        doSaveTxn();
+      }
+    }
+
+    /* ===== SweetAlert helpers ===== */
+    function showSwal(type = "success", title = "Success!", msg = "Saved successfully."){
+      const swal = gid("swal"),
+            box = gid("swalBox"),
+            icon = gid("swalIcon"),
+            titleEl = gid("swalTitle"),
+            msgEl = gid("swalMsg");
+
+      // reset animations / base icon
+      box.style.animation = "none";
+      icon.style.animation = "none";
+      icon.style.border = "none";
+      icon.style.width = "auto";
+      icon.style.height = "auto";
+      icon.style.borderTopColor = "transparent";
+      icon.style.borderRadius = "0";
+      icon.style.fontSize = "3.1rem";
+      icon.textContent = "";
+
+      // force reflow
+      box.offsetHeight;
+
+      box.style.boxShadow =
+        "0 20px 50px rgba(0,0,0,0.7), 0 0 18px rgba(56,189,248,0.35)";
+
+      if(type === "saving"){
+        icon.textContent = "";
+        icon.style.fontSize = "0";
+        icon.style.width = "46px";
+        icon.style.height = "46px";
+        icon.style.borderRadius = "999px";
+        icon.style.border = "4px solid #38bdf8";
+        icon.style.borderTopColor = "transparent";
+        icon.style.animation = "spin 0.9s linear infinite";
+
+        titleEl.textContent = title || "Submitted";
+        msgEl.textContent   = msg   || "Processing your entry…";
+        box.style.animation = "swalPulseSaving 2.5s ease-in-out infinite";
+      }else if(type === "success"){
+        icon.textContent = "✅";
+        icon.style.fontSize = "3.1rem";
+        titleEl.textContent = title || "Success!";
+        msgEl.textContent   = msg   || "Record saved successfully.";
+        box.style.animation = "swalPulseSuccess 3s ease-in-out infinite";
+      }else if(type === "error"){
+        icon.textContent = "❌";
+        icon.style.fontSize = "3.1rem";
+        titleEl.textContent = title || "Error!";
+        msgEl.textContent   = msg   || "Something went wrong.";
+        box.style.animation = "swalPulseError 2.2s ease-in-out infinite";
+      }
+
+      swal.style.display = "flex";
+      swal.style.pointerEvents = "all";
+      requestAnimationFrame(() => {
+        swal.style.opacity = "1";
+        box.style.opacity = "1";
+        box.style.transform = "scale(1)";
+      });
+    }
+
+    function hideSwal(delay = 1500){
+      const swal = gid("swal"),
+            box = gid("swalBox");
+      swal.style.pointerEvents = "none";
+      setTimeout(() => {
+        box.style.opacity = "0";
+        box.style.transform = "scale(0.9)";
+        swal.style.opacity = "0";
+        setTimeout(() => {
+          swal.style.display = "none";
+          box.style.animation = "none";
+        }, 300);
+      }, delay);
+    }
+  </script>
+</body>
+</html>
