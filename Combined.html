@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Heart to Hand + Vouchers</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --tab: #1f2937;
+      --tab-active: #111827;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 20%, rgba(34,197,94,0.06), transparent 40%),
+                  radial-gradient(circle at 80% 0%, rgba(59,130,246,0.08), transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 18px;
+    }
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(59,130,246,0.08));
+    }
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(34,197,94,0.7);
+      color: #bbf7d0;
+      background: rgba(34,197,94,0.14);
+      font-size: 11px;
+      letter-spacing: 0.6px;
+    }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #0b1224;
+    }
+    .tab {
+      cursor: pointer;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--tab);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      transition: transform 120ms ease, filter 150ms ease, box-shadow 150ms ease, color 120ms ease;
+    }
+    .tab:hover { filter: brightness(1.05); }
+    .tab:active { transform: translateY(1px); }
+    .tab.active {
+      background: var(--tab-active);
+      color: var(--text);
+      border-color: rgba(34,197,94,0.45);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+    .panes {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 180px);
+      min-height: 640px;
+      background: #0b1224;
+    }
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+      background: #0b1224;
+    }
+    iframe.active { display: block; }
+    .hint {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: #0b1224;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="top">
+      <h1>
+        Heart to Hand + Vouchers
+        <span class="badge">Single Web App</span>
+      </h1>
+      <div style="font-size:13px;color:var(--muted);">Offline logic remains inside each app.</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-target="heart">Heart to Hand</button>
+      <button class="tab" data-target="vouchers">Vouchers</button>
+    </div>
+    <div class="panes">
+      <iframe id="pane-heart" title="Heart to Hand"></iframe>
+      <iframe id="pane-vouchers" title="Vouchers"></iframe>
+    </div>
+    <div class="hint">
+      If a pane looks blank after an update, reload this page. Each pane uses the same deployed web-app URL with an internal app parameter; no extra servers needed.
+    </div>
+  </div>
+
+  <script>
+    (function init() {
+      const base = window.location.href.split('?')[0];
+      const heartFrame = document.getElementById('pane-heart');
+      const vouchersFrame = document.getElementById('pane-vouchers');
+      heartFrame.src = `${base}?app=heart`;
+      vouchersFrame.src = `${base}?app=vouchers`;
+      heartFrame.classList.add('active');
+
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const target = tab.getAttribute('data-target');
+          heartFrame.classList.toggle('active', target === 'heart');
+          vouchersFrame.classList.toggle('active', target === 'vouchers');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
