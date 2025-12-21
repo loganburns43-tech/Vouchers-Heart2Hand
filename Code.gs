@@ -68,10 +68,20 @@ function onInstall() {
   onOpen();
 }
 
-// ---------- Web App ----------
+// ---------- Web App (single entry; renders combined tabs) ----------
 function doGet() {
+  setupHeartToHand_(); // ensure Heart to Hand sheet exists
+  return HtmlService.createHtmlOutputFromFile('Combined')
+    .setTitle('Heart to Hand + Vouchers')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// ---------- Web App (render helper) ----------
+function renderHeartToHand() {
   setupHeartToHand_();
-  return HtmlService.createHtmlOutputFromFile('HeartToHand')
+  const t = HtmlService.createTemplateFromFile('HeartToHand');
+  t.baseUrl = ScriptApp.getService().getUrl();
+  return t.evaluate()
     .setTitle('Heart to Hand')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
