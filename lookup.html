@@ -49,6 +49,7 @@
       background:linear-gradient(180deg,rgba(24,22,33,0.96),rgba(24,22,33,0));
     }
     .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    /* switch-link styling removed to avoid in-page switch controls */
     .history-cta{
       flex:0 0 auto;min-width:140px;padding:12px 16px;border-radius:14px;
       border:1px solid rgba(148,163,184,.4);
@@ -231,12 +232,21 @@
       color:#fff;border-color:transparent;box-shadow:0 0 22px rgba(180,151,255,.65)
     }
 
-    /* Live balance pill */
-    .status-stack{display:grid;gap:10px;align-content:start;align-self:end}
+    /* Live balance pill (hotdog layout: horizontal stack) */
+    .status-stack{
+      display:flex;
+      flex-direction:row;
+      gap:12px;
+      align-items:flex-start;
+      align-self:flex-start; /* prevent the stack from stretching and pushing other grid cells */
+    }
     .livebox{
       background:var(--surface);border:1px solid var(--border);
-      border-radius:12px;padding:8px 12px;min-width:240px;
-      box-shadow:0 6px 16px rgba(0,0,0,.22)
+      border-radius:12px;padding:8px 12px;
+      min-width:160px;flex:0 0 auto; /* allow the box to size to content without forcing column width */
+      max-width:320px;box-sizing:border-box;overflow:visible;
+      box-shadow:0 6px 16px rgba(0,0,0,.22);
+      width:auto;
     }
     .livebox .title{
       font-size:.78rem;font-weight:800;color:var(--muted);
@@ -261,9 +271,18 @@
       box-shadow:0 0 0 3px rgba(156,207,216,.28)
     }
 
+    /* Top-row live balance: place a `.top-live` container at the far right
+       so the livebox sits to the right of the action buttons. Hide on small screens. */
+    .top-actions{display:flex;gap:10px;align-items:center}
+    .top-live{margin-left:auto;display:flex;align-items:center}
+    .top-live .livebox{flex:0 0 auto;min-width:180px;max-width:320px}
+    @media (max-width:960px){
+      .top-live{display:none}
+    }
+
     /* Overrides row */
     .override-row{
-      display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end
+      display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start
     }
     @media (max-width:760px){.override-row{grid-template-columns:1fr}}
 
@@ -582,6 +601,14 @@ body.sig-drawing {
           <button class="profile-cta" id="editProfileBtn" type="button" onclick="openProfileEditor()">Edit Profile</button>
           <button class="client-cta" id="clientBtn" type="button" onclick="openClientList()">Clients</button>
         </div>
+        <div class="top-live">
+          <div class="livebox" id="livebox">
+            <div class="row live-phone" id="live_phone_row" style="display:none">Phone <b id="live_phone">—</b></div>
+            <div class="title">Live Balance</div>
+            <div class="big" id="live_new">$0.00</div>
+            <div class="row">Previous <b id="live_prev">$0.00</b> • Added <b id="live_add">$0.00</b> • Spent <b id="live_spent">$0.00</b></div>
+          </div>
+        </div>
       </div>
 
       <div id="offlineBanner">⚠ Offline Mode — Local Save Enabled</div>
@@ -611,7 +638,7 @@ body.sig-drawing {
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 0.9fr auto;gap:14px;align-items:end">
+      <div style="display:grid;grid-template-columns:1fr 0.9fr auto;gap:14px;align-items:start">
         <div>
           <label for="cash">Cash Added ($)</label>
           <div class="cash-buttons" id="cashButtons">
@@ -626,20 +653,7 @@ body.sig-drawing {
           <label for="spent">Spent ($)</label>
           <input id="spent" type="number" step="any" min="0" placeholder="0.00">
         </div>
-        <div class="status-stack">
-          <div class="livebox" id="livebox">
-            <div class="row live-phone" id="live_phone_row" style="display:none">
-              Phone <b id="live_phone">—</b>
-            </div>
-            <div class="title">Live Balance</div>
-            <div class="big" id="live_new">$0.00</div>
-            <div class="row">
-              Previous <b id="live_prev">$0.00</b> •
-              Added <b id="live_add">$0.00</b> •
-              Spent <b id="live_spent">$0.00</b>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       <!-- Overrides row -->
@@ -720,30 +734,9 @@ body.sig-drawing {
       <div class="grid2" style="margin-top:8px;">
         <div>
           <label for="profileLast">Last Name</label>
-          <input id="profileLast" autocomplete="off" placeholder="i.e. Doe">
-        </div>
-        <div>
-          <label for="profileFirst">First Name</label>
-          <input id="profileFirst" autocomplete="off" placeholder="i.e. Jane">
-        </div>
-      </div>
-      <label for="profilePhone">Phone (optional)</label>
-      <input id="profilePhone" autocomplete="off" placeholder="(209) 123-4567">
-      <div class="actions" style="margin-top:14px;">
-        <button id="profileSaveBtn" type="button" onclick="submitProfileUpdate()">Save Profile</button>
-        <button class="ghost" type="button" onclick="closeProfileEditor()">Cancel</button>
-      </div>
-      <div class="danger-zone">
-        <h3>Delete Person</h3>
-        <p>Requires passcode — removes from all lists.</p>
-        <label for="profileDeletePassword">Passcode</label>
-        <input id="profileDeletePassword" type="password" autocomplete="off" placeholder="Enter 4-digit passcode">
-        <div class="actions" style="margin-top:12px;">
-          <button id="profileDeleteBtn" class="danger-btn" type="button" onclick="submitProfileDeletion()">Delete Person</button>
-        </div>
-      </div>
-      <div id="profileStatus" class="muted" style="min-height:22px;margin-top:2px;"></div>
-    </div>
+
+        
+  
   </div>
 
   <div id="historyOverlay" class="modal-overlay" style="display:none">
@@ -816,7 +809,7 @@ body.sig-drawing {
   </div>
 
   <script>
-    const gid = id => document.getElementById(id);
+    window.gid = window.gid || (id => document.getElementById(id));
 
     let _chimePrimed = false;
     let _chimeSrc = null;
@@ -2696,6 +2689,9 @@ window.addEventListener('online', () => {
         }, 300);
       }, delay);
     }
+
+    // In-page switch removed; Combined wrapper handles app switching.
   </script>
+  
 </body>
 </html>
