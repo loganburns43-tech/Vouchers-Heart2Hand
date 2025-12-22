@@ -120,6 +120,8 @@
       box-shadow: 0 0 0 4px rgba(235, 111, 146, 0.18);
     }
 
+    /* small in-pane switch button (removed) */
+
     label {
       display: block;
       font-weight: 600;
@@ -712,7 +714,6 @@
         <p class="muted">Track items gifted for free and the value behind each visit.</p>
       </div>
       <div class="header-actions">
-        <a class="switch-link" href="#" id="switchToVouchers" target="_top" rel="noopener">Switch to Voucher Lookup</a>
         <div aria-live="polite" aria-atomic="true" style="min-width: 220px;">
           <span id="connectionChip" class="chip connection-chip offline">Checking connection...</span>
         </div>
@@ -888,7 +889,7 @@
   </div>
 
   <script>
-    const gid = (id) => document.getElementById(id);
+    window.gid = window.gid || (id => document.getElementById(id));
     const OFFLINE_QUEUE_KEY = 'hh_offline_queue';
     let historyEntries = [];
     let allClients = [];
@@ -1649,18 +1650,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-    function wireSwitchLink() {
-      const link = document.getElementById('switchToVouchers');
-      if (!link) return;
-      const baseFromServer = '<?= typeof baseUrl !== "undefined" ? baseUrl : "" ?>';
-      const base = baseFromServer && baseFromServer.trim()
-        ? baseFromServer
-        : window.location.href.split('?')[0];
-      link.href = `${base}?app=vouchers`;
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      wireSwitchLink();
       init();
     });
   </script>

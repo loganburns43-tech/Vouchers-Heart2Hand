@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="gasp-base-url" content="<?!= baseUrl || '' ?>">
   <title>Heart to Hand + Vouchers</title>
   <style>
     :root {
@@ -29,7 +30,7 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       box-shadow: 0 18px 40px rgba(0,0,0,0.4);
-      overflow: hidden;
+      overflow: visible;
     }
     .top {
       display: flex;
@@ -73,16 +74,23 @@
     .panes {
       position: relative;
       width: 100%;
-      min-height: 640px;
+      min-height: 0;
       background: #0b1224;
       padding: 12px;
-      overflow: hidden;
+      overflow: visible;
     }
     .pane {
       display: none;
       background: #0b1224;
     }
     .pane.active { display: block; }
+
+    /* iframe styles: fill container, no visual overflow */
+    .pane iframe {
+      width: 100%;
+      border: 0;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -94,32 +102,71 @@
     <div class="tabs">
       <button class="tab active" data-target="heart">Heart to Hand</button>
       <button class="tab" data-target="vouchers">Vouchers</button>
+      <button class="tab" data-target="dfs">Dress for Success</button>
     </div>
     <div class="panes">
       <div class="pane active" id="pane-heart" title="Heart to Hand">
-        <?!= HtmlService.createHtmlOutputFromFile('HeartToHand').getContent(); ?>
+        <!-- iframe will be injected to isolate each app and avoid script/style collisions -->
+        <div id="iframeHeartContainer" style="width:100%;height:80vh;"></div>
       </div>
       <div class="pane" id="pane-vouchers" title="Vouchers">
-        <?!= HtmlService.createHtmlOutputFromFile('lookup').getContent(); ?>
+        <div id="iframeVouchersContainer" style="width:100%;height:80vh;"></div>
+      </div>
+      <div class="pane" id="pane-dfs" title="Dress for Success">
+        <div id="iframeDFSContainer" style="width:100%;height:80vh;"></div>
       </div>
     </div>
   </div>
 
+  <script id="heartSrc" type="application/json"><?!= JSON.stringify(include('HeartToHand')) ?></script>
+  <script id="vouchersSrc" type="application/json"><?!= JSON.stringify(include('lookup')) ?></script>
+  <script id="dfsSrc" type="application/json"><?!= JSON.stringify(include('DressForSuccess')) ?></script>
   <script>
-    (function init() {
+    (function init(){
       const panes = {
         heart: document.getElementById('pane-heart'),
-        vouchers: document.getElementById('pane-vouchers')
+        vouchers: document.getElementById('pane-vouchers'),
+        dfs: document.getElementById('pane-dfs')
       };
-
+      // Inject isolated iframes with the included HTML using srcdoc
+      try{
+        const heartHtml = JSON.parse(document.getElementById('heartSrc').textContent || '""');
+        const vouchersHtml = JSON.parse(document.getElementById('vouchersSrc').textContent || '""');
+        const hCont = document.getElementById('iframeHeartContainer');
+        const vCont = document.getElementById('iframeVouchersContainer');
+        const dCont = document.getElementById('iframeDFSContainer');
+        if(hCont){
+          const f = document.createElement('iframe');
+          f.style.width = '100%'; f.style.height = '100%'; f.style.border = '0';
+          f.sandbox = 'allow-scripts allow-forms allow-same-origin';
+          f.srcdoc = heartHtml;
+          hCont.appendChild(f);
+        }
+        if(vCont){
+          const f2 = document.createElement('iframe');
+          f2.style.width = '100%'; f2.style.height = '100%'; f2.style.border = '0';
+          f2.sandbox = 'allow-scripts allow-forms allow-same-origin';
+          f2.srcdoc = vouchersHtml;
+          vCont.appendChild(f2);
+        }
+        if(dCont){
+          const f3 = document.createElement('iframe');
+          f3.style.width = '100%'; f3.style.height = '100%'; f3.style.border = '0';
+          f3.sandbox = 'allow-scripts allow-forms allow-same-origin';
+          const dfsHtml = JSON.parse(document.getElementById('dfsSrc').textContent || '""');
+          f3.srcdoc = dfsHtml;
+          dCont.appendChild(f3);
+        }
+      }catch(e){
+        console.error('Could not inject iframes', e);
+      }
       document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
           document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
           const target = tab.getAttribute('data-target');
-          Object.keys(panes).forEach(key => {
-            panes[key].classList.toggle('active', key === target);
-          });
+          Object.keys(panes).forEach(key => panes[key].classList.toggle('active', key === target));
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
     })();

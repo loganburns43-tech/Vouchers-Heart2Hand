@@ -69,9 +69,33 @@ function onInstall() {
 }
 
 // ---------- Web App (single entry; renders combined tabs) ----------
-function doGet() {
+function doGet(e) {
   setupHeartToHand_(); // ensure Heart to Hand sheet exists
-  return HtmlService.createHtmlOutputFromFile('Combined')
+
+  const param = (e && e.parameter) || {};
+  const app = String(param.app || '').toLowerCase();
+
+  // Serve individual apps directly so they run in their own HtmlService context
+  if (app === 'heart') {
+    const t = HtmlService.createTemplateFromFile('HeartToHand');
+    t.baseUrl = ScriptApp.getService().getUrl();
+    return t.evaluate()
+      .setTitle('Heart to Hand')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  if (app === 'vouchers' || app === 'lookup') {
+    const t = HtmlService.createTemplateFromFile('lookup');
+    t.baseUrl = ScriptApp.getService().getUrl();
+    return t.evaluate()
+      .setTitle('Vouchers')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  // Default: combined view
+  const t = HtmlService.createTemplateFromFile('Combined');
+  t.baseUrl = ScriptApp.getService().getUrl();
+  return t.evaluate()
     .setTitle('Heart to Hand + Vouchers')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -84,6 +108,13 @@ function renderHeartToHand() {
   return t.evaluate()
     .setTitle('Heart to Hand')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// Helper for server-side include in templates: <?!= include('Filename') ?>
+function include(filename) {
+  // Use a template so server-side scriptlets in the included file are evaluated.
+  const t = HtmlService.createTemplateFromFile(filename);
+  return t.evaluate().getContent();
 }
 
 // ---------- Save Entry ----------

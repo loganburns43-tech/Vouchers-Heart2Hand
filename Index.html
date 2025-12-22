@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Dress for Success</title>
+  <style>
+    :root {
+      --bg: #191724;
+      --card: #1f1d2e;
+      --surface: #26233a;
+      --border: #403d52;
+      --text: #e0def4;
+      --muted: #6e6a86;
+      --accent: #4da3ff;
+      --secondary: #31748f;
+      --ok: #3fb26f;
+      --cta: #f6c177;
+      --danger: #d1435b;
+      --female-accent: #f59ac0;
+      --male-accent: #71b7ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: radial-gradient(circle at 10% 20%, rgba(235, 111, 146, 0.08), transparent 25%),
+                  radial-gradient(circle at 80% 10%, rgba(49, 116, 143, 0.1), transparent 22%),
+                  var(--bg);
+      min-height: 100vh;
+      transition: background 0.2s ease, filter 0.2s ease;
+    }
+
+    body.offline {
+      filter: grayscale(0.15) brightness(0.95);
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 8px 0;
+      color: var(--text);
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    input[type="text"], input[type="tel"], input[type="date"], select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: none;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      background: var(--secondary);
+      border: none;
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+    }
+
+    .btn-secondary {
+      background: var(--cta);
+      color: #1f1d2e;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    .inline-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      justify-content: center;
+    }
+
+    .status {
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: none;
+      font-weight: 700;
+      background: rgba(246, 193, 119, 0.12);
+      border: 1px solid var(--cta);
+      color: var(--cta);
+    }
+
+    .status.show { display: block; }
+    .status.success { background: rgba(63, 178, 111, 0.16); border-color: var(--ok); color: var(--ok); }
+    .status.error { background: rgba(209, 67, 91, 0.18); border-color: var(--danger); color: var(--danger); }
+    .status.info { background: rgba(246, 193, 119, 0.12); border-color: var(--cta); color: var(--cta); }
+
+    .offline-banner {
+      display: none;
+      padding: 10px 14px;
+      border-radius: 999px;
+      margin: 0 0 12px 0;
+      background: rgba(246, 193, 119, 0.18);
+      border: 1px solid var(--cta);
+      color: var(--cta);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .disabled-overlay {
+      position: relative;
+      opacity: 0.6;
+    }
+
+    .disabled-overlay::after {
+      content: 'Select or add a client to continue';
+      position: absolute;
+      inset: 0;
+      background: rgba(25, 23, 36, 0.85);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-weight: 700;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--muted);
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .history-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .history-meta { color: var(--muted); font-size: 0.95rem; }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      counter-reset: item;
+    }
+
+    .checkbox-grid label {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--surface);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      font-weight: 500;
+      counter-increment: item;
+      position: relative;
+    }
+
+    .checkbox-grid label::before {
+      content: counter(item) ".";
+      font-weight: 700;
+      color: var(--cta);
+      margin-right: 6px;
+    }
+
+    .checkbox-grid input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .gender-toggle {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .gender-toggle button {
+      background: transparent;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 8px 14px;
+      box-shadow: none;
+      font-weight: 700;
+    }
+
+    .gender-toggle button.active {
+      color: #1f1d2e;
+    }
+
+    .gender-toggle .btn-female.active {
+      background: var(--female-accent);
+      border-color: var(--female-accent);
+    }
+
+    .gender-toggle .btn-male.active {
+      background: var(--male-accent);
+      border-color: var(--male-accent);
+    }
+
+    #categoryList.gender-female label {
+      border-color: var(--female-accent);
+      color: var(--female-accent);
+    }
+
+    #categoryList.gender-female label::before {
+      color: var(--female-accent);
+    }
+
+    #categoryList.gender-female input[type="checkbox"] {
+      accent-color: var(--female-accent);
+    }
+
+    #categoryList.gender-male label {
+      border-color: var(--male-accent);
+      color: var(--male-accent);
+    }
+
+    #categoryList.gender-male label::before {
+      color: var(--male-accent);
+    }
+
+    #categoryList.gender-male input[type="checkbox"] {
+      accent-color: var(--male-accent);
+    }
+
+    canvas.signature {
+      width: 100%;
+      height: 240px;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+      background: #ffffff;
+      cursor: crosshair;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+    }
+
+    .flex {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .two-col {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    #clerkInitials {
+      border: 2px solid #fff;
+      background: var(--surface);
+    }
+
+    .items-summary-box {
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 70px;
+      color: #0f172a;
+      line-height: 1.4;
+    }
+
+    .items-summary-box * {
+      color: #0f172a;
+    }
+
+    .items-summary-box.empty {
+      color: #403d52;
+    }
+
+    .summary-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .summary-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f8f9fc;
+      border: 1px solid var(--border);
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .summary-chip button {
+      background: transparent;
+      border: none;
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .summary-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      width: min(700px, 100%);
+      color: #1f1d2e;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content .muted {
+      color: #4b5563;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #1f1d2e;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 12px; }
+      button { width: 100%; justify-content: center; }
+      .inline-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div id="status" class="status info show">Loading clients...</div>
+  <div id="offlineBanner" class="offline-banner" role="status" aria-live="polite">
+    ⚠️ Offline mode. Visits will save locally and sync when you're online again.
+  </div>
+
+  <div class="grid" style="gap: 20px;">
+    <div class="card">
+      <h1>Dress for Success</h1>
+      <p class="muted">Select an existing client or add a new one to log outfits.</p>
+      <div class="two-col">
+        <div>
+          <label>Client Search</label>
+          <p class="muted">Open the popout to search and select an existing client.</p>
+          <div class="inline-actions">
+            <button class="btn-secondary" onclick="openClientSearchModal()">Search Clients</button>
+            <button class="btn-primary" onclick="toggleAddClientForm(true)">Add New Client</button>
+          </div>
+          <p class="muted" style="margin: 10px 0 6px;">Current selection</p>
+          <div id="selectedClientBadge" class="pill">No client selected.</div>
+          <div class="inline-actions" style="margin-top: 12px;">
+            <button class="btn-secondary" onclick="clearSelection()">Clear Selection</button>
+          </div>
+        </div>
+        <div id="addClientCard" class="card" style="background: var(--surface); display: none;">
+          <h3>Add New Client</h3>
+          <label>First Name <span class="muted">(required)</span></label>
+          <input type="text" id="newFirstName" />
+          <label>Last Name <span class="muted">(required)</span></label>
+          <input type="text" id="newLastName" />
+          <label>Phone <span class="muted">(required)</span></label>
+          <input type="tel" id="newPhone" />
+          <label>Notes</label>
+          <textarea id="newNotes" placeholder="Notes or preferences"></textarea>
+          <div class="inline-actions">
+            <button class="btn-primary" onclick="saveNewClient()">Save Client</button>
+            <button class="btn-ghost" onclick="toggleAddClientForm(false)">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="visitSection" class="card disabled-overlay">
+      <h2>Dress for Success Visit</h2>
+      <p class="muted" id="visitContext">Select a client to begin a new visit.</p>
+      <div class="two-col">
+        <div>
+          <label for="visitDate">Visit Date</label>
+          <input type="date" id="visitDate" />
+        </div>
+        <div>
+          <label for="reason">Reason / Visit Type</label>
+          <select id="reason" onchange="toggleOtherReason()">
+            <option value="Interview">Interview</option>
+            <option value="New Job">New Job</option>
+            <option value="Work Wardrobe">Work Wardrobe</option>
+            <option value="General Assistance">General Assistance</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" id="otherReason" placeholder="If Other, describe" style="margin-top: 8px; display: none;" />
+        </div>
+      </div>
+
+      <label>Item Categories</label>
+      <div class="gender-toggle" aria-label="Select wardrobe type">
+        <button id="femaleToggle" class="btn-female active" onclick="switchGender('female')" type="button">Female</button>
+        <button id="maleToggle" class="btn-male" onclick="switchGender('male')" type="button">Male</button>
+      </div>
+      <div class="checkbox-grid" id="categoryList">
+        <label><input type="checkbox" value="Blouse" /><span>Blouse</span></label>
+        <label><input type="checkbox" value="Pants / Slacks" /><span>Pants / Slacks</span></label>
+        <label><input type="checkbox" value="Skirt" /><span>Skirt</span></label>
+        <label><input type="checkbox" value="Dress" /><span>Dress</span></label>
+        <label><input type="checkbox" value="Blazer / Jacket" /><span>Blazer / Jacket</span></label>
+        <label><input type="checkbox" value="Suit" /><span>Suit</span></label>
+        <label><input type="checkbox" value="Shoes / Heels" /><span>Shoes / Heels</span></label>
+        <label><input type="checkbox" value="Belt" /><span>Belt</span></label>
+        <label><input type="checkbox" value="Jewelry / Accessories" /><span>Jewelry / Accessories</span></label>
+        <label><input type="checkbox" value="Outerwear / Coat" /><span>Outerwear / Coat</span></label>
+        <label><input type="checkbox" value="Work Bag / Tote" /><span>Work Bag / Tote</span></label>
+        <label><input type="checkbox" value="Portfolio / Folder" /><span>Portfolio / Folder</span></label>
+      </div>
+      <label style="margin-top: 12px;">Other Item</label>
+      <input type="text" id="otherItem" placeholder="Optional extra item" />
+
+      <div class="summary-label" style="margin-top: 12px;">
+        <label style="margin: 0;">Items Summary <span class="muted">Auto-generated</span></label>
+        <span class="muted" style="font-size: 0.9rem;">Updates from checkboxes and other item</span>
+      </div>
+      <div id="itemsSummaryBox" class="items-summary-box">Select items to build the summary.</div>
+      <input type="hidden" id="itemsText" />
+
+      <div class="two-col">
+        <div>
+          <label>Clerk Initials <span class="muted">Required</span></label>
+          <input type="text" id="clerkInitials" />
+        </div>
+        <div>
+          <label class="summary-label">Signature <span class="muted">Required</span></label>
+          <button class="btn-secondary" style="width: 100%; margin-bottom: 10px;" onclick="openSignatureModal()">Open Signature Pad</button>
+        </div>
+      </div>
+
+      <div class="inline-actions" style="margin-top: 16px;">
+        <button class="btn-secondary" onclick="resetVisitForm()">Clear</button>
+        <button class="btn-primary" onclick="saveVisit()" id="saveButton">Save Visit</button>
+      </div>
+    </div>
+
+    <div id="historySection" class="card disabled-overlay">
+      <div class="flex" style="align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div>
+          <h2>Client History</h2>
+          <p class="muted" id="historySummary">Visit and item totals will appear after selecting a client.</p>
+        </div>
+        <div class="inline-actions" style="margin-top: 0;">
+          <span class="pill" id="visitCountPill">Visits: 0</span>
+          <span class="pill" id="itemCountPill">Items Given: 0</span>
+        </div>
+      </div>
+      <div id="historyList" class="grid"></div>
+    </div>
+  </div>
+
+  <div id="clientSearchModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin: 0; color: #1f1d2e;">Search Clients</h3>
+        <button class="btn-ghost" style="color: #1f1d2e; border: 1px solid #ddd;" onclick="closeClientSearchModal()">Close</button>
+      </div>
+      <p class="muted" style="margin-top: 0;">Search by name or phone, then choose a client to load their history.</p>
+      <label for="clientFilter" style="color: #1f1d2e;">Search Clients</label>
+      <input type="text" id="clientFilter" placeholder="Search by name or phone" oninput="filterClients()" style="color: #1f1d2e;" />
+      <div style="margin-top: 8px;">
+        <select id="clientSelect" size="8" style="width: 100%; padding: 10px; border-radius: 12px; background: #f8f9fc; border: 1px solid var(--border); color: #1f1d2e;" onchange="handleClientSelection()"></select>
+      </div>
+      <div class="inline-actions" style="margin-top: 12px; justify-content: flex-end;">
+        <button class="btn-secondary" onclick="clearSelection()">Clear Selection</button>
+        <button class="btn-primary" onclick="confirmClientSelection()">Use Selected Client</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="signatureModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin: 0; color: #1f1d2e;">Signature</h3>
+        <button class="btn-ghost" style="color: #1f1d2e; border: 1px solid #ddd;" onclick="closeSignatureModal()">Close</button>
+      </div>
+      <canvas id="signatureModalPad" class="signature" style="background: #fff; border: 2px dashed #403d52;"></canvas>
+      <div class="modal-actions">
+        <button class="btn-secondary" style="color: #1f1d2e;" onclick="clearSignature(true)">Clear</button>
+        <button class="btn-primary" onclick="applySignatureFromModal()">Use Signature</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      clients: [],
+      filteredClients: [],
+      selectedClient: null,
+      editingVisitId: null,
+      signatureModalCanvas: null,
+      signatureModalContext: null,
+      hasSignature: false,
+      signatureData: '',
+      stats: { visits: 0, items: 0 },
+      gender: 'female',
+      historyRequestId: 0,
+    };
+
+    const STORAGE_KEYS = {
+      clients: 'dfs_clients',
+      histories: 'dfs_histories',
+      queue: 'dfs_visit_queue',
+      lastSync: 'dfs_last_sync',
+    };
+
+    const CATEGORY_LABELS = {
+      female: [
+        'Blouse',
+        'Shirt',
+        'Pants / Slacks',
+        'Shorts',
+        'Skirt',
+        'Dress',
+        'Blazer / Jacket',
+        'Suit',
+        'Shoes / Heels',
+        'Belt',
+        'Underwear / Socks',
+        'Scarf',
+        'Hat / Tie',
+        'Jewelry / Accessories',
+        'Outerwear / Coat',
+        'Work Bag / Tote',
+        'Portfolio / Folder',
+      ],
+      male: [
+        'Shirt',
+        'Dress Shirt',
+        'Pants / Slacks',
+        'Shorts',
+        'Hat / Tie',
+        'Blazer / Jacket',
+        'Suit',
+        'Shoes',
+        'Belt',
+        'Underwear / Socks',
+        'Scarf',
+        'Accessories',
+        'Outerwear / Coat',
+        'Work Bag / Briefcase',
+        'Portfolio / Folder',
+      ],
+    };
+
+    function safeParse(key, fallback) {
+      try {
+        return JSON.parse(localStorage.getItem(key)) || fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function persist(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function getHistories() {
+      return safeParse(STORAGE_KEYS.histories, {});
+    }
+
+    function saveHistories(histories) {
+      persist(STORAGE_KEYS.histories, histories);
+    }
+
+    function getQueue() {
+      return safeParse(STORAGE_KEYS.queue, []);
+    }
+
+    function saveQueue(queue) {
+      persist(STORAGE_KEYS.queue, queue);
+    }
+
+    function getLastSync() {
+      return localStorage.getItem(STORAGE_KEYS.lastSync) || 'n/a';
+    }
+
+    function setLastSync(value) {
+      localStorage.setItem(STORAGE_KEYS.lastSync, value);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setDefaultVisitDate();
+      initSignaturePads();
+      renderCategoryList();
+      attachItemSummaryListeners();
+      loadClients();
+      window.addEventListener('online', handleConnectionChange);
+      window.addEventListener('offline', handleConnectionChange);
+      handleConnectionChange();
+    });
+
+    function showStatus(message, type = 'info') {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      el.className = `status show ${type}`;
+    }
+
+    function handleConnectionChange() {
+      const online = navigator.onLine;
+      const banner = document.getElementById('offlineBanner');
+      document.body.classList.toggle('offline', !online);
+
+      if (banner) {
+        banner.style.display = online ? 'none' : 'block';
+      }
+
+      if (!online) {
+        showStatus('Offline mode. Visits will save locally until reconnected.', 'info');
+      } else {
+        // silently sync any queued visits in the background
+        syncQueuedVisits();
+      }
+    }
+
+    function getTodayString() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function setDefaultVisitDate() {
+      document.getElementById('visitDate').value = getTodayString();
+    }
+
+    function toggleAddClientForm(show) {
+      document.getElementById('addClientCard').style.display = show ? 'block' : 'none';
+      if (show) {
+        document.getElementById('newFirstName').focus();
+      }
+    }
+
+    function loadClients() {
+      const storedClients = safeParse(STORAGE_KEYS.clients, []);
+      state.clients = storedClients;
+      state.filteredClients = [...state.clients];
+      renderClients();
+      showStatus(`Loaded ${state.clients.length} client${state.clients.length === 1 ? '' : 's'} from offline storage.`, 'success');
+      updateSelectedClientBadge();
+    }
+
+    function renderClients() {
+      const select = document.getElementById('clientSelect');
+      select.innerHTML = '';
+      state.filteredClients.forEach(client => {
+        const option = document.createElement('option');
+        option.value = client.personId;
+        option.textContent = `${client.lastName}, ${client.firstName} — ${client.phone}`;
+        select.appendChild(option);
+      });
+    }
+
+    function openClientSearchModal() {
+      document.getElementById('clientSearchModal').classList.add('show');
+      document.getElementById('clientFilter').focus();
+      filterClients();
+    }
+
+    function closeClientSearchModal() {
+      document.getElementById('clientSearchModal').classList.remove('show');
+    }
+
+    function filterClients() {
+      const term = document.getElementById('clientFilter').value.trim().toLowerCase();
+      state.filteredClients = state.clients.filter(c =>
+        !term ||
+        c.firstName.toLowerCase().includes(term) ||
+        c.lastName.toLowerCase().includes(term) ||
+        String(c.phone).toLowerCase().includes(term)
+      );
+      renderClients();
+    }
+
+    function updateSelectedClientBadge() {
+      const badge = document.getElementById('selectedClientBadge');
+      if (!badge) return;
+      if (state.selectedClient) {
+        badge.textContent = `${state.selectedClient.lastName}, ${state.selectedClient.firstName} — ${state.selectedClient.phone}`;
+        badge.classList.remove('muted');
+      } else {
+        badge.textContent = 'No client selected.';
+        badge.classList.add('muted');
+      }
+    }
+
+    function handleClientSelection() {
+      const select = document.getElementById('clientSelect');
+      const personId = select.value;
+      const client = state.clients.find(c => c.personId === personId);
+      if (client) {
+        state.selectedClient = client;
+        applyClientStats(client.totalVisits || 0, client.totalItems || 0);
+        unlockVisit();
+        updateSelectedClientBadge();
+        closeClientSearchModal();
+      }
+    }
+
+    function confirmClientSelection() {
+      handleClientSelection();
+    }
+
+    function clearSelection() {
+      state.selectedClient = null;
+      state.editingVisitId = null;
+      document.getElementById('clientSelect').value = '';
+      document.getElementById('visitContext').textContent = 'Select a client to begin a new visit.';
+      document.getElementById('visitSection').classList.add('disabled-overlay');
+      document.getElementById('historySection').classList.add('disabled-overlay');
+      document.getElementById('historyList').innerHTML = '';
+      applyClientStats(0, 0);
+      resetVisitForm();
+      updateSelectedClientBadge();
+    }
+
+    function unlockVisit() {
+      document.getElementById('visitSection').classList.remove('disabled-overlay');
+      document.getElementById('historySection').classList.remove('disabled-overlay');
+      document.getElementById('visitContext').textContent =
+        `Creating new visit for ${state.selectedClient.firstName} ${state.selectedClient.lastName} (${state.selectedClient.phone}).`;
+      state.editingVisitId = null;
+      resetVisitForm();
+      loadHistory();
+      updateSelectedClientBadge();
+    }
+
+    function saveNewClient() {
+      const firstName = document.getElementById('newFirstName').value.trim();
+      const lastName = document.getElementById('newLastName').value.trim();
+      const phone = document.getElementById('newPhone').value.trim();
+      const notes = document.getElementById('newNotes').value.trim();
+
+    (file truncated for brevity)
